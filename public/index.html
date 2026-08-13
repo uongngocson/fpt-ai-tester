@@ -323,11 +323,14 @@
             <span class="inspector-heading-text">KẾT QUẢ PHẢN HỒI TỪ API (RESPONSE INSPECTOR)</span>
           </div>
           <div class="response-metrics">
-            <button id="btnExportExcel" class="btn btn-secondary btn-xs btn-excel-green" title="Xuất dữ liệu & Kết quả ra file Excel .xlsx">📊 Xuất Excel</button>
+            <button id="btnExportExcel" class="btn btn-secondary btn-xs btn-excel-green" title="Xuất báo cáo Excel tổng hợp 100% tất cả nhân sự (Full Data + Kết quả API)">📊 Xuất Excel Tất Cả CBNV</button>
             <span id="resStatusBadge" class="badge badge-neutral">Ready</span>
             <span id="resLatency" class="metric-tag">-- ms</span>
           </div>
         </div>
+
+        <!-- CANDIDATE API RESPONSE TABS (FOR MULTI-EMPLOYEE BATCH RUNS) -->
+        <div id="inspectorCandidateTabs" class="candidate-pill-list hidden" style="padding: 8px 16px; background: #0b0f19; border-bottom: 1px solid var(--border-color);"></div>
 
         <div class="inspector-body">
           <div id="resLoader" class="loader-overlay hidden">

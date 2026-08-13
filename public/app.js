@@ -726,6 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resLatency.textContent = '-- ms';
 
     const token = bearerTokenInput.value.trim() || 'test';
+    const activeEmail = (state.payload.employee_info.fpt_email || 'default@fpt.com').toLowerCase().trim();
 
     try {
       const startTime = Date.now();
@@ -745,25 +746,113 @@ document.addEventListener('DOMContentLoaded', () => {
       resLatency.textContent = `${latency} ms`;
 
       const result = await res.json();
+      const isSuccess = res.ok && result.success;
+      const statusText = isSuccess ? '200 OK' : `${result.statusCode || 500} Error`;
+      const responseText = JSON.stringify(isSuccess ? result.data : result, null, 2);
 
-      if (res.ok && result.success) {
+      // Save result in batch state
+      if (!state.batchResults) state.batchResults = {};
+      state.batchResults[activeEmail] = {
+        name: state.payload.employee_info.full_name || activeEmail,
+        email: activeEmail,
+        status: statusText,
+        isSuccess: isSuccess,
+        latency: latency,
+        responseText: responseText,
+        timestamp: new Date().toLocaleTimeString()
+      };
+
+      if (isSuccess) {
         resStatusBadge.textContent = `200 OK`;
         resStatusBadge.className = 'badge badge-success';
-        responseDisplay.textContent = JSON.stringify(result.data, null, 2);
+        responseDisplay.textContent = responseText;
       } else {
-        resStatusBadge.textContent = `${result.statusCode || 500} Error`;
+        resStatusBadge.textContent = statusText;
         resStatusBadge.className = 'badge badge-danger';
-        responseDisplay.textContent = JSON.stringify(result, null, 2);
+        responseDisplay.textContent = responseText;
       }
+
+      renderInspectorCandidateTabs(activeEmail);
     } catch (err) {
       resLoader.classList.add('hidden');
       resStatusBadge.textContent = 'Fetch Failed';
       resStatusBadge.className = 'badge badge-danger';
-      responseDisplay.textContent = JSON.stringify({
+      const errText = JSON.stringify({
         error: err.message,
         hint: "Không kết nối được tới Proxy Server local (Port 3000)."
       }, null, 2);
+      responseDisplay.textContent = errText;
+
+      if (!state.batchResults) state.batchResults = {};
+      state.batchResults[activeEmail] = {
+        name: state.payload.employee_info.full_name || activeEmail,
+        email: activeEmail,
+        status: 'Fetch Failed',
+        isSuccess: false,
+        latency: 0,
+        responseText: errText,
+        timestamp: new Date().toLocaleTimeString()
+      };
+      renderInspectorCandidateTabs(activeEmail);
     }
+  }
+
+  // --- RENDER INSPECTOR CANDIDATE TABS ---
+  function renderInspectorCandidateTabs(activeEmail) {
+    const inspectorCandidateTabs = document.getElementById('inspectorCandidateTabs');
+    if (!inspectorCandidateTabs) return;
+
+    const emails = state.excelParsedCandidates ? Object.keys(state.excelParsedCandidates) : (state.payload ? [state.payload.employee_info.fpt_email || 'default@fpt.com'] : []);
+    
+    if (emails.length <= 1 && (!state.batchResults || Object.keys(state.batchResults).length <= 1)) {
+      inspectorCandidateTabs.classList.add('hidden');
+      return;
+    }
+
+    inspectorCandidateTabs.classList.remove('hidden');
+    inspectorCandidateTabs.innerHTML = '';
+
+    emails.forEach(email => {
+      const key = email.toLowerCase().trim();
+      const cand = state.excelParsedCandidates ? state.excelParsedCandidates[key] : state.payload;
+      const resInfo = state.batchResults ? state.batchResults[key] : null;
+      const name = cand && cand.employee_info ? (cand.employee_info.full_name || email) : email;
+
+      let statusBadgeHtml = '<span class="badge badge-neutral">⚪ Chưa gửi</span>';
+      if (resInfo) {
+        if (resInfo.isSuccess) {
+          statusBadgeHtml = `<span class="badge badge-success">🟢 ${resInfo.status} (${resInfo.latency}ms)</span>`;
+        } else {
+          statusBadgeHtml = `<span class="badge badge-danger">🔴 ${resInfo.status}</span>`;
+        }
+      }
+
+      const pill = document.createElement('div');
+      pill.className = `candidate-pill ${key === (activeEmail || '').toLowerCase() ? 'active' : ''}`;
+      pill.innerHTML = `
+        <span>👤 <strong>${name}</strong></span>
+        ${statusBadgeHtml}
+      `;
+
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('#inspectorCandidateTabs .candidate-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+
+        if (resInfo) {
+          resStatusBadge.textContent = resInfo.status;
+          resStatusBadge.className = resInfo.isSuccess ? 'badge badge-success' : 'badge badge-danger';
+          resLatency.textContent = `${resInfo.latency} ms`;
+          responseDisplay.textContent = resInfo.responseText;
+        } else {
+          resStatusBadge.textContent = 'Ready';
+          resStatusBadge.className = 'badge badge-neutral';
+          resLatency.textContent = '-- ms';
+          responseDisplay.textContent = `Chưa gửi API cho ${name} (${email}). Bấm "GỬI API GENERATE IDP" ở trên để kiểm tra.`;
+        }
+      });
+
+      inspectorCandidateTabs.appendChild(pill);
+    });
   }
 
   // --- TOGGLE EXPAND RESPONSE INSPECTOR ---
@@ -783,7 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnExportExcel.addEventListener('click', exportToExcel);
   }
 
-  // --- EXPORT TO EXCEL (1 SINGLE SHEET FULL DATA) ---
+  // --- EXPORT TO EXCEL (PRO PRODUCTION 1 ROW PER CBNV MASTER REPORT) ---
   function exportToExcel() {
     if (typeof XLSX === 'undefined') {
       alert('Đang tải thư viện XLSX... Vui lòng thử lại sau giây lát.');
@@ -795,112 +884,146 @@ document.addEventListener('DOMContentLoaded', () => {
       const rows = [];
 
       // HEADER BANNER
-      rows.push(["BÁO CÁO KẾT QUẢ ĐÁNH GIÁ IP PROJECT -> GENERATE IDP"]);
+      rows.push(["BÁO CÁO TỔNG HỢP IP PROJECT -> GENERATE IDP TOÀN BỘ CBNV"]);
       rows.push(["Thời gian xuất báo cáo: " + new Date().toLocaleString()]);
       rows.push([]);
 
-      // SECTION 1: THÔNG TIN NHÂN VIÊN
-      rows.push(["=== 1. THÔNG TIN NHÂN VIÊN (EMPLOYEE INFO) ==="]);
-      rows.push(["Họ và Tên:", state.payload.employee_info.full_name || '']);
-      rows.push(["FPT Email:", state.payload.employee_info.fpt_email || '']);
-      rows.push(["Chi Nhánh / Đơn Vị:", state.payload.employee_info.branch || '']);
-      rows.push(["Kỳ Đánh Giá:", state.payload.employee_info.evaluation_period || '']);
-      rows.push([]);
+      // TABLE HEADERS (28 PRODUCTION COLUMNS)
+      const headers = [
+        "STT",
+        "Họ và Tên CBNV",
+        "FPT Email",
+        "Chi Nhánh",
+        "Kỳ Đánh Giá",
+        "Nhóm Năng Lực",
+        "Tên Năng Lực",
+        "Level Benchmark",
+        "Mô Tả Chỉ Số Hành Vi",
+        "Tín Hiệu Đánh Giá (Signals)",
+        "Group ID CBI",
+        "Name ID CBI",
+        "Level CBI",
+        "Điểm Số CBI Agent",
+        "Tóm Tắt Tín Hiệu CBI",
+        "Phân Tích Chi Tiết CBI",
+        "Phản Hồi CBI Agent",
+        "Email Quản Lý (360 Cấp Trên)",
+        "Mức Đánh Giá Cấp Trên",
+        "Từ Khóa Điểm Mạnh Cấp Trên",
+        "Nhận Xét Chi Tiết Cấp Trên",
+        "Danh Sách Email Đồng Nghiệp (360 Cấp Dưới)",
+        "Mức Đánh Giá Đồng Nghiệp (TB)",
+        "Từ Khóa Điểm Mạnh Đồng Nghiệp",
+        "Nhận Xét Chi Tiết Đồng Nghiệp",
+        "Trạng Thái Gọi API Generate IDP",
+        "Độ Trễ API Latency (ms)",
+        "Chi Tiết Phản Hồi AI Generate IDP (Response JSON)"
+      ];
+      rows.push(headers);
 
-      // SECTION 2: KHUNG NĂNG LỰC BENCHMARK
-      rows.push(["=== 2. KHUNG NĂNG LỰC BENCHMARK (COMPETENCY BENCHMARK) ==="]);
-      rows.push(["Nhóm Năng Lực:", state.payload.competency_benchmark.competency_group || '']);
-      rows.push(["Tên Năng Lực:", state.payload.competency_benchmark.competency_name || '']);
-      rows.push(["Benchmark Level:", state.payload.competency_benchmark.benchmark_level || 1]);
-      rows.push([]);
+      // GET ALL CANDIDATES LIST
+      const candidatesList = [];
+      if (state.excelParsedCandidates && Object.keys(state.excelParsedCandidates).length > 0) {
+        Object.keys(state.excelParsedCandidates).forEach(email => {
+          candidatesList.push(state.excelParsedCandidates[email]);
+        });
+      } else if (state.payload) {
+        candidatesList.push(state.payload);
+      }
 
-      // SECTION 3: CHỈ SỐ HÀNH VI
-      rows.push(["=== 3. CHỈ SỐ HÀNH VI (BEHAVIOUR INDICATORS) ==="]);
-      rows.push(["Cấp (Level)", "Mô Tả Chỉ Số Hành Vi"]);
-      (state.payload.competency_benchmark.behaviour_indicator || []).forEach(ind => {
-        rows.push([`Level ${ind.level}`, ind.description || '']);
-      });
-      rows.push([]);
+      // BUILD EACH CBNV ROW (1 ROW PER CBNV)
+      candidatesList.forEach((cand, idx) => {
+        const emp = cand.employee_info || {};
+        const comp = cand.competency_benchmark || {};
+        const cbi = (cand.cbi_agent_data || [])[0] || {};
+        const mgr = cand.manager_review || {};
+        const peers = cand.peer_reviews || [];
 
-      // SECTION 4: TÍN HIỆU ĐÁNH GIÁ
-      rows.push(["=== 4. TÍN HIỆU ĐÁNH GIÁ (SIGNALS) ==="]);
-      rows.push(["Cấp (Level)", "Các Chỉ Báo / Signals"]);
-      (state.payload.competency_benchmark.signals || []).forEach(sig => {
-        rows.push([`Level ${sig.level}`, (sig.indicators || []).join('\n')]);
-      });
-      rows.push([]);
+        const emailKey = (emp.fpt_email || '').toLowerCase().trim();
+        const apiRes = state.batchResults ? state.batchResults[emailKey] : null;
 
-      // SECTION 5: DỮ LIỆU CBI AGENT
-      rows.push(["=== 5. DỮ LIỆU CBI AGENT (CBI AGENT DATA) ==="]);
-      rows.push(["Group ID", "Name ID", "Level", "Score", "Tóm Tắt Tín Hiệu", "Phân Tích Chi Tiết", "Phản Hồi / Feedback"]);
-      (state.payload.cbi_agent_data || []).forEach(cbi => {
+        // Peer summary calculations
+        const peerEmails = peers.map(p => p.peer_email).filter(Boolean).join(', ');
+        const peerAvgLevel = peers.length > 0 ? (peers.reduce((acc, p) => acc + (p.evaluated_level || 1), 0) / peers.length).toFixed(1) : 'N/A';
+        const peerStrengths = peers.map(p => (p.strengths_keywords || []).join(', ')).filter(Boolean).join(' | ');
+        const peerFeedbacks = peers.map(p => p.specific_feedback).filter(Boolean).join(' | ');
+
+        // Behaviour Indicators string
+        const indicatorsStr = (comp.behaviour_indicator || []).map(i => `L${i.level}: ${i.description}`).join('\n');
+        const signalsStr = (comp.signals || []).map(s => `L${s.level}: ${(s.indicators || []).join(', ')}`).join('\n');
+
         rows.push([
-          cbi.competency_group_id || '',
-          cbi.competency_name_id || '',
-          cbi.level || '',
+          idx + 1,
+          emp.full_name || '',
+          emp.fpt_email || '',
+          emp.branch || '',
+          emp.evaluation_period || '',
+          comp.competency_group || '',
+          comp.competency_name || '',
+          comp.benchmark_level || 1,
+          indicatorsStr,
+          signalsStr,
+          cbi.competency_group_id || '1',
+          cbi.competency_name_id || '1',
+          cbi.level || '1',
           cbi.score || '',
           cbi.signal_summary || '',
           cbi.standard_breakdown || '',
-          cbi.feedback || ''
+          cbi.feedback || '',
+          mgr.manager_email || '',
+          mgr.evaluated_level || 1,
+          (mgr.strengths_keywords || []).join(', '),
+          mgr.specific_feedback || '',
+          peerEmails,
+          peerAvgLevel,
+          peerStrengths,
+          peerFeedbacks,
+          apiRes ? apiRes.status : 'Chưa gọi API',
+          apiRes ? apiRes.latency : '--',
+          apiRes ? apiRes.responseText : ''
         ]);
       });
-      rows.push([]);
 
-      // SECTION 6: ĐÁNH GIÁ QUẢN LÝ & ĐỒNG NGHIỆP
-      rows.push(["=== 6. ĐÁNH GIÁ QUẢN LÝ & ĐỒNG NGHIỆP (REVIEWS) ==="]);
-      rows.push(["Loại Đánh Giá", "Email", "Mức Đánh Giá", "Từ Khóa Điểm Mạnh", "Từ Khóa Điểm Cần Cải Thiện", "Ý Kiến Phản Hồi Cụ Thể"]);
-      
-      const mgr = state.payload.manager_review;
-      rows.push([
-        "Quản Lý (Manager)",
-        mgr.manager_email || '',
-        mgr.evaluated_level || 1,
-        (mgr.strengths_keywords || []).join(', '),
-        (mgr.weaknesses_keywords || []).join(', '),
-        mgr.specific_feedback || ''
-      ]);
-
-      (state.payload.peer_reviews || []).forEach((peer, idx) => {
-        rows.push([
-          `Đồng Nghiệp #${idx + 1}`,
-          peer.peer_email || '',
-          peer.evaluated_level || 1,
-          (peer.strengths_keywords || []).join(', '),
-          (peer.weaknesses_keywords || []).join(', '),
-          peer.specific_feedback || ''
-        ]);
-      });
-      rows.push([]);
-
-      // SECTION 7: KẾT QUẢ PHẢN HỒI AI GENERATE IDP
-      rows.push(["=== 7. KẾT QUẢ PHẢN HỒI THỰC TẾ TỪ API GENERATE IDP (RESPONSE INSPECTOR) ==="]);
-      const status = document.getElementById('resStatusBadge')?.textContent || 'N/A';
-      const latency = document.getElementById('resLatency')?.textContent || 'N/A';
-      const responseText = document.getElementById('responseDisplay')?.textContent || '';
-      
-      rows.push(["Trạng Thái API:", status]);
-      rows.push(["Độ Trễ Latency:", latency]);
-      rows.push(["Chi Tiết Phản Hồi AI IDP:", responseText]);
-
-      // BUILD WORKSHEET & APPEND TO WORKBOOK (1 SINGLE SHEET)
+      // BUILD WORKSHEET
       const ws = XLSX.utils.aoa_to_sheet(rows);
 
-      // Auto Column Widths
+      // AUTO COLUMN WIDTHS
       ws['!cols'] = [
-        { wch: 30 },
-        { wch: 30 },
-        { wch: 15 },
-        { wch: 25 },
-        { wch: 35 },
-        { wch: 40 },
-        { wch: 45 }
+        { wch: 6 },  // STT
+        { wch: 22 }, // Full Name
+        { wch: 25 }, // FPT Email
+        { wch: 14 }, // Branch
+        { wch: 15 }, // Period
+        { wch: 20 }, // Comp Group
+        { wch: 35 }, // Comp Name
+        { wch: 15 }, // Benchmark Level
+        { wch: 45 }, // Indicators
+        { wch: 45 }, // Signals
+        { wch: 12 }, // Group ID
+        { wch: 12 }, // Name ID
+        { wch: 10 }, // Level CBI
+        { wch: 12 }, // Score
+        { wch: 35 }, // Summary
+        { wch: 45 }, // Breakdown
+        { wch: 45 }, // Feedback
+        { wch: 25 }, // Manager Email
+        { wch: 15 }, // Manager Level
+        { wch: 35 }, // Manager Strengths
+        { wch: 40 }, // Manager Feedback
+        { wch: 35 }, // Peer Emails
+        { wch: 15 }, // Peer Avg Level
+        { wch: 40 }, // Peer Strengths
+        { wch: 45 }, // Peer Feedback
+        { wch: 18 }, // API Status
+        { wch: 14 }, // Latency
+        { wch: 60 }  // API Response JSON
       ];
 
-      XLSX.utils.book_append_sheet(wb, ws, "BÁO_CÁO_IDP_TỔNG_HỢP");
+      XLSX.utils.book_append_sheet(wb, ws, "BÁO_CÁO_IDP_TỔNG_HỢP_CBNV");
 
-      const filename = `Bao_Cao_IDP_Tong_Hop_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      const filename = `Bao_Cao_IDP_Tong_Hop_${candidatesList.length}_CBNV_${new Date().toISOString().slice(0, 10)}.xlsx`;
       XLSX.writeFile(wb, filename);
-      alert(`Đã xuất file Excel tổng hợp 1 Sheet thành công: ${filename}`);
+      alert(`✓ Xuất thành công Báo cáo Excel Bảng Tổng Hợp cho ${candidatesList.length} CBNV!\nTên file: ${filename}`);
     } catch (err) {
       alert('Lỗi xuất Excel: ' + err.message);
     }
