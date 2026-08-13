@@ -1,6 +1,65 @@
 {
   "presets": [
     {
+      "id": "blank_form",
+      "name": "📝 Form Trống (Tự Nhập Dữ Liệu Mới)",
+      "description": "Form sạch 100% để bạn tự điền thông tin thực tế từ đầu.",
+      "data": {
+        "employee_info": {
+          "full_name": "",
+          "fpt_email": "",
+          "branch": "",
+          "evaluation_period": ""
+        },
+        "competency_benchmark": {
+          "competency_group": "",
+          "competency_name": "",
+          "benchmark_level": 1,
+          "behaviour_indicator": [
+            {
+              "level": 1,
+              "description": ""
+            }
+          ],
+          "signals": [
+            {
+              "level": 1,
+              "indicators": [
+                ""
+              ]
+            }
+          ]
+        },
+        "cbi_agent_data": [
+          {
+            "competency_group_id": "1",
+            "competency_name_id": "1",
+            "level": "1",
+            "score": "",
+            "signal_summary": "",
+            "standard_breakdown": "",
+            "feedback": ""
+          }
+        ],
+        "manager_review": {
+          "manager_email": "",
+          "evaluated_level": 1,
+          "strengths_keywords": [],
+          "weaknesses_keywords": [],
+          "specific_feedback": ""
+        },
+        "peer_reviews": [
+          {
+            "peer_email": "",
+            "evaluated_level": 1,
+            "strengths_keywords": [],
+            "weaknesses_keywords": [],
+            "specific_feedback": ""
+          }
+        ]
+      }
+    },
+    {
       "id": "prompt_default",
       "name": "Mẫu 1: Phạm Hồng Diệp (Tháng 4/2026) - Từ Yêu Cầu Gốc",
       "description": "Dữ liệu mẫu đầy đủ các trường employee_info, competency_benchmark, cbi_agent_data, manager_review và peer_reviews.",
