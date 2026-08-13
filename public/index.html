@@ -3,315 +3,303 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IP Project → Generate IDP Enterprise Hub</title>
-  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <title>IP Project → Generate IDP Enterprise Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="dark-theme">
+<body>
 
-  <!-- TOP APP HEADER -->
-  <header class="app-header">
-    <div class="header-brand">
-      <div class="logo-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <h1>IP Project <span>IDP Hub</span></h1>
-        <p class="subtitle">Enterprise API Studio & Data Generator v1.0 (Production-Ready)</p>
-      </div>
+  <!-- TOP NAVBAR -->
+  <header class="top-navbar">
+    <div class="nav-brand">
+      <div class="fpt-badge-logo">FPT AI</div>
+      <div class="brand-title">IP Project <span>IDP Studio</span></div>
     </div>
 
-    <div class="header-actions">
+    <div class="nav-actions">
       <!-- Environment Switcher -->
-      <div class="env-picker">
-        <label for="envSelect">Môi trường:</label>
-        <select id="envSelect" class="input-select-sm">
-          <option value="PROD" selected>PROD (botftel-api.fpt.net)</option>
-          <option value="STAG">STAG (botftel-api-stag.fpt.net)</option>
+      <div class="env-selector-pill">
+        <span class="status-dot"></span>
+        <select id="envSelect">
+          <option value="PROD" selected>PROD: botftel-api.fpt.net</option>
+          <option value="STAG">STAG: botftel-api-stag.fpt.net</option>
           <option value="CUSTOM">Custom Host...</option>
         </select>
       </div>
 
-      <!-- Custom Domain Input (Hidden by default) -->
-      <input type="text" id="customDomainInput" class="input-sm hidden" placeholder="http://host:port">
-
-      <!-- Server Proxy Status Badge -->
-      <div id="connectionBadge" class="badge badge-success">
-        <span class="dot"></span> Online Proxy (Port 3000)
-      </div>
+      <input type="text" id="customDomainInput" class="modern-input hidden" style="width: 180px; padding: 4px 8px; font-size: 0.78rem;" placeholder="http://host:port">
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <div class="app-container">
+  <!-- MAIN WORKSPACE SPLIT -->
+  <div class="workspace-grid">
 
-    <!-- LEFT PANEL: DATA FORM & PRESET BUILDER -->
-    <main class="panel form-panel">
-      <!-- PRESET TOOLBAR -->
-      <div class="panel-header flex-between">
-        <div class="panel-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          <span>Cấu hình & Nhập Dữ Liệu Input</span>
+    <!-- LEFT PANEL: FORM EDITOR & CONTROL CENTER -->
+    <section class="workspace-panel left-editor-panel">
+      <!-- STICKY NAV BAR -->
+      <div class="section-nav-bar">
+        <div class="nav-chips">
+          <button class="nav-chip-btn active" data-target="sec-auth">🔑 Token</button>
+          <button class="nav-chip-btn" data-target="sec-emp">👤 Employee</button>
+          <button class="nav-chip-btn" data-target="sec-benchmark">🎯 Benchmark</button>
+          <button class="nav-chip-btn" data-target="sec-cbi">🤖 CBI Data</button>
+          <button class="nav-chip-btn" data-target="sec-reviews">👔 Reviews</button>
         </div>
-        <div class="preset-controls">
-          <label for="presetSelect">Mẫu Nhanh:</label>
-          <select id="presetSelect" class="input-select-sm">
-            <option value="">-- Chọn Mẫu Dữ Liệu --</option>
+
+        <div class="preset-bar">
+          <select id="presetSelect" class="preset-select">
+            <option value="">-- Preset Mẫu --</option>
           </select>
-          <button id="btnResetForm" class="btn btn-secondary btn-sm" title="Đặt lại dữ liệu trắng">Reset</button>
         </div>
       </div>
 
-      <!-- NAVIGATION STEPPER TABS -->
-      <div class="stepper-tabs">
-        <button class="tab-btn active" data-tab="tab-auth">1. Token Hub</button>
-        <button class="tab-btn" data-tab="tab-employee">2. Nhân Viên</button>
-        <button class="tab-btn" data-tab="tab-competency">3. Năng Lực</button>
-        <button class="tab-btn" data-tab="tab-cbi">4. CBI Agent</button>
-        <button class="tab-btn" data-tab="tab-reviews">5. Đánh Giá (Manager/Peer)</button>
-      </div>
+      <!-- FORM SCROLL AREA -->
+      <div class="form-scroll-area">
 
-      <!-- TAB CONTENT PANELS -->
-      <div class="tab-contents">
-
-        <!-- TAB 1: TOKEN AUTH HUB -->
-        <section id="tab-auth" class="tab-pane active">
-          <div class="card card-accent">
-            <h3>🔑 Lấy Token Xác Thực (Bearer Token)</h3>
-            <p class="card-desc">Gửi yêu cầu lấy Access Token từ endpoint <code>/bot-gateway-api/get_token</code> trước khi gọi API Generate IDP.</p>
-            
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label for="clientSecret">Client Secret (FPT Secret):</label>
-                <input type="text" id="clientSecret" class="input-text" value="HXS7yjvNPf5JH8NSDr3oMFETP0dDRhUc">
-              </div>
-
-              <div class="form-group flex-end">
-                <button id="btnFetchToken" class="btn btn-primary btn-block">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-                  Lấy Token Ngay
-                </button>
-              </div>
-            </div>
-
-            <div class="token-status-box mt-3">
-              <label>Bearer Token Hiện Tại:</label>
-              <div class="token-input-group">
-                <input type="text" id="bearerToken" class="input-text font-mono" placeholder="Chưa có token (Hoặc dán Token 'test' vào đây)" value="test">
-                <button id="btnCopyToken" class="btn btn-secondary btn-sm">Copy</button>
-              </div>
-              <div id="tokenMeta" class="token-meta text-muted mt-1">
-                <span>Trạng thái: Ready</span> | <span id="tokenExpiryText">Default string fallback active</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- TAB 2: EMPLOYEE INFO -->
-        <section id="tab-employee" class="tab-pane">
-          <div class="card">
-            <h3>👤 Thông Tin Nhân Viên (employee_info)</h3>
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label for="empName">Họ và Tên (*):</label>
-                <input type="text" id="empName" class="input-text" placeholder="Phạm Hồng Diệp">
-              </div>
-
-              <div class="form-group">
-                <label for="empEmail">FPT Email (*):</label>
-                <input type="email" id="empEmail" class="input-text" placeholder="DiepPH4@fpt.com">
-              </div>
-
-              <div class="form-group">
-                <label for="empBranch">Chi Nhánh / Đơn Vị (branch):</label>
-                <input type="text" id="empBranch" class="input-text" placeholder="AGG">
-              </div>
-
-              <div class="form-group">
-                <label for="empPeriod">Kỳ Đánh Giá (evaluation_period):</label>
-                <input type="text" id="empPeriod" class="input-text" placeholder="Tháng 4/2026">
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- TAB 3: COMPETENCY BENCHMARK -->
-        <section id="tab-competency" class="tab-pane">
-          <div class="card">
-            <h3>🎯 Khung Năng Lực Chuẩn (competency_benchmark)</h3>
-            
-            <div class="form-grid-3">
-              <div class="form-group">
-                <label for="compGroup">Nhóm Năng Lực (competency_group):</label>
-                <input type="text" id="compGroup" class="input-text" placeholder="GIÁ TRỊ CỐT LÕI">
-              </div>
-
-              <div class="form-group">
-                <label for="compName">Tên Năng Lực (competency_name):</label>
-                <input type="text" id="compName" class="input-text" placeholder="Duy trì và lan tỏa giá trị văn hóa FPT">
-              </div>
-
-              <div class="form-group">
-                <label for="compBenchmarkLevel">Mức Mẫu Benchmark (1-5):</label>
-                <input type="number" id="compBenchmarkLevel" class="input-text" min="1" max="5" value="3">
-              </div>
-            </div>
-
-            <!-- Behaviour Indicators List Editor -->
-            <div class="sub-section mt-4">
-              <div class="flex-between mb-2">
-                <label class="section-subtitle">Chỉ Số Hành Vi (behaviour_indicator):</label>
-                <button id="btnAddIndicator" class="btn btn-secondary btn-sm">+ Thêm Indicator</button>
-              </div>
-              <div id="indicatorsContainer" class="dynamic-list"></div>
-            </div>
-
-            <!-- Signals List Editor -->
-            <div class="sub-section mt-4">
-              <div class="flex-between mb-2">
-                <label class="section-subtitle">Tín Hiệu Đánh Giá (signals):</label>
-                <button id="btnAddSignalGroup" class="btn btn-secondary btn-sm">+ Thêm Cấp Signal</button>
-              </div>
-              <div id="signalsContainer" class="dynamic-list"></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- TAB 4: CBI AGENT DATA -->
-        <section id="tab-cbi" class="tab-pane">
-          <div class="card">
-            <div class="flex-between mb-2">
-              <div>
-                <h3>🤖 Dữ Liệu CBI Agent (cbi_agent_data)</h3>
-                <p class="card-desc">Danh sách kết quả chấm từ CBI Agent (group_id, name_id, level, score, feedback...).</p>
-              </div>
-              <button id="btnAddCbiItem" class="btn btn-secondary btn-sm">+ Thêm CBI Item</button>
-            </div>
-            <div id="cbiContainer" class="dynamic-list"></div>
-          </div>
-        </section>
-
-        <!-- TAB 5: MANAGER & PEER REVIEWS -->
-        <section id="tab-reviews" class="tab-pane">
-          <!-- Manager Review Card -->
-          <div class="card mb-4">
-            <h3>👔 Đánh Giá Của Quản Lý (manager_review)</h3>
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label for="mgrEmail">Email Quản Lý (manager_email):</label>
-                <input type="email" id="mgrEmail" class="input-text" placeholder="KhiemPD@fpt.com">
-              </div>
-
-              <div class="form-group">
-                <label for="mgrLevel">Mức Đánh Giá (evaluated_level):</label>
-                <input type="number" id="mgrLevel" class="input-text" min="1" max="5" value="2">
-              </div>
-
-              <div class="form-group col-span-2">
-                <label for="mgrStrengths">Từ Khóa Điểm Mạnh (cách nhau bởi phẩy):</label>
-                <input type="text" id="mgrStrengths" class="input-text" placeholder="Tôn trọng, Đổi mới, Đồng đội, Chí công, Gương mẫu, Sáng suốt">
-              </div>
-
-              <div class="form-group col-span-2">
-                <label for="mgrWeaknesses">Từ Khóa Điểm Cần Cải Thiện (cách nhau bởi phẩy):</label>
-                <input type="text" id="mgrWeaknesses" class="input-text" placeholder="Không ý kiến">
-              </div>
-
-              <div class="form-group col-span-2">
-                <label for="mgrFeedback">Ý Kiến Phản Hồi Cụ Thể (specific_feedback):</label>
-                <textarea id="mgrFeedback" class="input-textarea" rows="2" placeholder="Không"></textarea>
-              </div>
-            </div>
+        <!-- SECTION 1: AUTH TOKEN HUB -->
+        <div id="sec-auth" class="form-section-card">
+          <div class="section-header-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            <span>1. Authentication & Bearer Token</span>
           </div>
 
-          <!-- Peer Reviews Card -->
-          <div class="card">
-            <div class="flex-between mb-2">
-              <div>
-                <h3>👥 Đánh Giá Của Đồng Nghiệp (peer_reviews)</h3>
-                <p class="card-desc">Danh sách nhận xét từ các đồng nghiệp trong phòng ban.</p>
-              </div>
-              <button id="btnAddPeer" class="btn btn-secondary btn-sm">+ Thêm Đồng Nghiệp</button>
+          <div class="grid-2">
+            <div class="input-field-group">
+              <label class="input-label">Client Secret FPT</label>
+              <input type="text" id="clientSecret" class="modern-input" value="HXS7yjvNPf5JH8NSDr3oMFETP0dDRhUc">
             </div>
-            <div id="peerReviewsContainer" class="dynamic-list"></div>
+
+            <div class="input-field-group" style="justify-content: flex-end;">
+              <button id="btnFetchToken" class="btn-cta-execute" style="background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: none; font-size: 0.8rem;">
+                🔑 Get Bearer Token
+              </button>
+            </div>
+
+            <div class="input-field-group span-full">
+              <label class="input-label">Access Token</label>
+              <input type="text" id="bearerToken" class="modern-input font-mono" value="test" placeholder="Bearer Token...">
+            </div>
           </div>
-        </section>
-
-      </div>
-    </main>
-
-    <!-- RIGHT PANEL: LIVE JSON EDITOR, cURL EXPORTER & RESPONSE VIEW -->
-    <aside class="panel preview-panel">
-      <!-- HEADER TOOLS -->
-      <div class="panel-header flex-between">
-        <div class="view-tabs">
-          <button class="view-tab-btn active" data-view="json-view">📄 Live Payload JSON</button>
-          <button class="view-tab-btn" data-view="curl-view">💻 Standard cURL Command</button>
         </div>
-        
-        <!-- MAIN EXECUTE BUTTON -->
-        <button id="btnExecuteApi" class="btn btn-execute">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          GỬI API GENERATE IDP
+
+        <!-- SECTION 2: EMPLOYEE INFO -->
+        <div id="sec-emp" class="form-section-card">
+          <div class="section-header-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>2. Employee Information</span>
+          </div>
+
+          <div class="grid-2">
+            <div class="input-field-group">
+              <label class="input-label">Full Name (*)</label>
+              <input type="text" id="empName" class="modern-input" placeholder="Phạm Hồng Diệp">
+            </div>
+
+            <div class="input-field-group">
+              <label class="input-label">FPT Email (*)</label>
+              <input type="email" id="empEmail" class="modern-input" placeholder="DiepPH4@fpt.com">
+            </div>
+
+            <div class="input-field-group">
+              <label class="input-label">Branch / Unit</label>
+              <input type="text" id="empBranch" class="modern-input" placeholder="AGG">
+            </div>
+
+            <div class="input-field-group">
+              <label class="input-label">Evaluation Period</label>
+              <input type="text" id="empPeriod" class="modern-input" placeholder="Tháng 4/2026">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: COMPETENCY BENCHMARK -->
+        <div id="sec-benchmark" class="form-section-card">
+          <div class="section-header-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <span>3. Competency Benchmark</span>
+          </div>
+
+          <div class="grid-2">
+            <div class="input-field-group">
+              <label class="input-label">Competency Group</label>
+              <input type="text" id="compGroup" class="modern-input" placeholder="GIÁ TRỊ CỐT LÕI">
+            </div>
+
+            <div class="input-field-group">
+              <label class="input-label">Competency Name</label>
+              <input type="text" id="compName" class="modern-input" placeholder="Duy trì và lan tỏa giá trị văn hóa FPT">
+            </div>
+
+            <div class="input-field-group span-full">
+              <label class="input-label">Benchmark Level</label>
+              <div id="compBenchmarkChips" class="level-chip-group">
+                <button class="level-chip-btn" data-val="1">Lvl 1</button>
+                <button class="level-chip-btn" data-val="2">Lvl 2</button>
+                <button class="level-chip-btn active" data-val="3">Lvl 3</button>
+                <button class="level-chip-btn" data-val="4">Lvl 4</button>
+                <button class="level-chip-btn" data-val="5">Lvl 5</button>
+              </div>
+            </div>
+
+            <!-- Indicators Sub-Section -->
+            <div class="input-field-group span-full style-sub">
+              <div class="flex-between mb-2">
+                <label class="input-label">Behaviour Indicators</label>
+                <button id="btnAddIndicator" class="btn-icon-sm">+ Add Indicator</button>
+              </div>
+              <div id="indicatorsContainer"></div>
+            </div>
+
+            <!-- Signals Sub-Section -->
+            <div class="input-field-group span-full style-sub">
+              <div class="flex-between mb-2">
+                <label class="input-label">Signals</label>
+                <button id="btnAddSignalGroup" class="btn-icon-sm">+ Add Signal Group</button>
+              </div>
+              <div id="signalsContainer"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 4: CBI AGENT DATA -->
+        <div id="sec-cbi" class="form-section-card">
+          <div class="section-header-title flex-between">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><rect x="4" y="8" width="16" height="12" rx="2"/></svg>
+              <span>4. CBI Agent Data</span>
+            </div>
+            <button id="btnAddCbiItem" class="btn-icon-sm">+ Add CBI Item</button>
+          </div>
+
+          <div id="cbiContainer"></div>
+        </div>
+
+        <!-- SECTION 5: REVIEWS -->
+        <div id="sec-reviews" class="form-section-card">
+          <div class="section-header-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>5. Manager & Peer Reviews</span>
+          </div>
+
+          <!-- Manager Review Subcard -->
+          <div class="grid-2 mb-4" style="background-color: var(--bg-input); padding: 14px; border-radius: var(--radius-md);">
+            <div class="input-field-group span-full" style="font-weight: 700; color: var(--indigo); font-size: 0.85rem;">
+              👔 Manager Review
+            </div>
+
+            <div class="input-field-group">
+              <label class="input-label">Manager Email</label>
+              <input type="email" id="mgrEmail" class="modern-input" placeholder="KhiemPD@fpt.com">
+            </div>
+
+            <div class="input-field-group">
+              <label class="input-label">Evaluated Level</label>
+              <div id="mgrLevelChips" class="level-chip-group">
+                <button class="level-chip-btn" data-val="1">1</button>
+                <button class="level-chip-btn active" data-val="2">2</button>
+                <button class="level-chip-btn" data-val="3">3</button>
+                <button class="level-chip-btn" data-val="4">4</button>
+              </div>
+            </div>
+
+            <div class="input-field-group span-full">
+              <label class="input-label">Strengths Keywords (Press Enter to add tag)</label>
+              <div id="mgrStrengthsTagBox" class="tag-input-container">
+                <input type="text" class="tag-inline-input" placeholder="Nhập từ khóa...">
+              </div>
+            </div>
+
+            <div class="input-field-group span-full">
+              <label class="input-label">Weaknesses Keywords</label>
+              <div id="mgrWeaknessesTagBox" class="tag-input-container">
+                <input type="text" class="tag-inline-input" placeholder="Nhập từ khóa...">
+              </div>
+            </div>
+
+            <div class="input-field-group span-full">
+              <label class="input-label">Specific Feedback</label>
+              <textarea id="mgrFeedback" class="modern-textarea" placeholder="Nhập phản hồi..."></textarea>
+            </div>
+          </div>
+
+          <!-- Peer Reviews Subcard -->
+          <div class="flex-between mb-2">
+            <label class="input-label" style="font-size: 0.85rem; color: var(--indigo);">👥 Peer Reviews List</label>
+            <button id="btnAddPeer" class="btn-icon-sm">+ Add Peer Review</button>
+          </div>
+          <div id="peerReviewsContainer"></div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: LIVE WORKBENCH & IDP RESPONSE VISUALIZER -->
+    <aside class="workspace-panel right-workbench-panel">
+      <!-- WORKBENCH HEADER -->
+      <div class="workbench-header">
+        <div class="tab-switcher">
+          <button class="wb-tab-btn active" data-wb="wb-idp">✨ Formatted IDP View</button>
+          <button class="wb-tab-btn" data-wb="wb-json">📄 Payload JSON</button>
+          <button class="wb-tab-btn" data-wb="wb-curl">💻 cURL Command</button>
+        </div>
+
+        <button id="btnExecuteApi" class="btn-cta-execute">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          RUN GENERATE IDP
         </button>
       </div>
 
-      <!-- VIEWER CONTAINERS -->
-      <div class="viewer-body">
+      <!-- WORKBENCH BODY -->
+      <div class="workbench-body">
 
-        <!-- JSON EDITOR VIEW -->
-        <div id="json-view" class="view-pane active">
-          <div class="code-toolbar flex-between mb-2">
-            <span class="code-lang">JSON (Auto-Validated)</span>
-            <div class="code-actions">
-              <button id="btnFormatJson" class="btn btn-ghost btn-xs">Format JSON</button>
-              <button id="btnCopyJson" class="btn btn-ghost btn-xs">Copy JSON</button>
+        <!-- TAB 1: FORMATTED IDP REPORT -->
+        <div id="wb-idp" class="wb-pane active">
+          <div id="idpVisualizer" class="response-visualizer">
+            <div class="res-header-bar">
+              <span style="font-weight: 700; font-size: 0.9rem;">IDP Output Report</span>
+              <span id="resBadge" class="res-badge-status res-badge-success">Ready</span>
+            </div>
+
+            <div id="idpReportContent">
+              <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 40px;">
+                Bấm <strong>"RUN GENERATE IDP"</strong> để thực thi API và nhận báo cáo cấu trúc IDP trực quan tại đây.
+              </p>
             </div>
           </div>
-          <textarea id="jsonEditor" class="code-textarea font-mono" spellcheck="false"></textarea>
-          <div id="jsonSyntaxStatus" class="syntax-status valid">✓ Format JSON Hợp Lệ</div>
         </div>
 
-        <!-- cURL COMMAND VIEW -->
-        <div id="curl-view" class="view-pane">
-          <div class="code-toolbar flex-between mb-2">
-            <span class="code-lang">cURL Bash Command</span>
-            <button id="btnCopyCurl" class="btn btn-ghost btn-xs">Copy cURL Command</button>
-          </div>
-          <pre id="curlDisplay" class="code-block font-mono"></pre>
-        </div>
-
-      </div>
-
-      <!-- BOTTOM PANEL: API RESPONSE INSPECTOR -->
-      <div class="response-inspector">
-        <div class="inspector-header flex-between">
-          <div class="inspector-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            <span>Kết Quả Phản Hồi Từ API (Response Inspector)</span>
-          </div>
-          <div class="response-metrics">
-            <span id="resStatusBadge" class="badge badge-neutral">Ready</span>
-            <span id="resLatency" class="metric-tag">-- ms</span>
+        <!-- TAB 2: RAW JSON PAYLOAD -->
+        <div id="wb-json" class="wb-pane">
+          <div class="code-editor-wrapper">
+            <div class="editor-toolbar">
+              <span>Auto-validated JSON Payload</span>
+              <div>
+                <button id="btnFormatJson" class="btn-icon-sm">Format</button>
+                <button id="btnCopyJson" class="btn-icon-sm">Copy</button>
+              </div>
+            </div>
+            <textarea id="jsonEditor" class="editor-textarea" spellcheck="false"></textarea>
           </div>
         </div>
 
-        <div class="inspector-body">
-          <div id="resLoader" class="loader-overlay hidden">
-            <div class="spinner"></div>
-            <p>Đang gửi dữ liệu đến botftel-api.fpt.net...</p>
+        <!-- TAB 3: cURL TERMINAL -->
+        <div id="wb-curl" class="wb-pane">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+            <button id="btnCopyCurl" class="btn-icon-sm">Copy cURL Command</button>
           </div>
-          <pre id="responseDisplay" class="code-block font-mono">Chưa gửi request. Bấm "GỬI API GENERATE IDP" ở trên để kiểm tra kết quả thực tế.</pre>
+          <pre id="curlDisplay" class="terminal-block"></pre>
         </div>
+
       </div>
     </aside>
 
   </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="toast-msg">Đã copy thành công!</div>
 
   <script src="app.js"></script>
 </body>
