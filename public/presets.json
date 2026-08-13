@@ -2,8 +2,8 @@
   "presets": [
     {
       "id": "blank_form",
-      "name": "📝 Form Trống (Tự Nhập Dữ Liệu Mới)",
-      "description": "Form sạch 100% để bạn tự điền thông tin thực tế từ đầu.",
+      "name": "Form Trống (Tự Nhập Dữ Liệu Mới)",
+      "description": "Biểu mẫu trống 100% để nhập thông tin thực tế từ đầu.",
       "data": {
         "employee_info": {
           "full_name": "",

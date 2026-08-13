@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Reset Form
     btnResetForm.addEventListener('click', () => {
-      if (confirm('Xác nhận tạo Form trống mới để nhập liệu từ đầu?')) {
+      if (confirm('Xác nhận đặt lại biểu mẫu nhập liệu về trạng thái ban đầu?')) {
         presetSelect.value = 'blank_form';
         presetSelect.dispatchEvent(new Event('change'));
       }
