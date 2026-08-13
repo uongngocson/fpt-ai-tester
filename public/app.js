@@ -902,7 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- DOWNLOAD EXCEL TEMPLATE (3 SHEETS STANDARD) ---
+  // --- DOWNLOAD EXCEL TEMPLATE (HUMAN BUSINESS ENTERPRISE STANDARD) ---
   function downloadExcelTemplate() {
     if (typeof XLSX === 'undefined') {
       alert('Đang tải thư viện XLSX... Vui lòng thử lại sau giây lát.');
@@ -912,134 +912,168 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const wb = XLSX.utils.book_new();
 
-      // Sheet 1: CBI (Template structure)
-      const cbiRows = [
-        ["Link tài liệu API", "IP_Project"],
-        ["input", "Test"],
-        ["employee_info"],
-        ["employee_info.full_name", "Nguyễn Văn A"],
-        ["employee_info.fpt_email", "Anv@fpt.com"],
-        ["employee_info.branch", "FTELAU"],
-        ["employee_info.evaluation_period", "T7/2026"],
-        ["competency_benchmark"],
-        ["competency_benchmark.competency_group", "Giá trị cốt lõi"],
-        ["competency_benchmark.competency_name", "Kỷ luật và thực thi nhiệm vụ"],
-        ["competency_benchmark.benchmark_level", 3],
-        ["competency_benchmark.behaviour_indicator", "Level 1\tSẵn sàng nhận mọi nhiệm vụ, tuân thủ nguyên tắc \"6 rõ\", tập trung thực thi và báo cáo kịp thời. \nLevel 2\tTự giải quyết trở ngại phát sinh, đồng thời tích cực phối hợp với cá nhân, đơn vị liên quan đảm bảo hoàn thành tốt nhiệm vụ.\nLevel 3\tChủ động nhận nhiệm vụ khó, huấn luyện đội ngũ về tư duy chịu trách nhiệm đến cùng; có phương pháp kiểm soát tiến độ và đề xuất cải tiến nhằm nâng cao kỷ luật thực thi tại đơn vị."],
-        ["competency_benchmark.signals", "Level 1: \n- Đề cập đến việc nhận ít nhất một nhiệm vụ cụ thể\n- Liệt kê được ít nhất 3 trong 6 yếu tố trong nguyên tắc 6 rõ\nLevel 2:\n- Tự mình tìm cách giải quyết một trở ngại cụ thể phát sinh\nLevel 3:\n- Xung phong nhận nhiệm vụ khó hoặc thách thức tại đơn vị"],
-        ["cbi_agent_data"],
-        ["cbi_agent_data.competency_group_id", "1"],
-        ["cbi_agent_data.competency_name_id", "1"],
-        ["cbi_agent_data.level", "2"],
-        ["cbi_agent_data.score", "5/10"],
-        ["cbi_agent_data.signal_summary", "5/10 Đạt Level 2."],
-        ["cbi_agent_data.standard_breakdown", "Ứng viên đạt chỉ số hành vi Level 2."],
-        ["cbi_agent_data.feedback", "Điểm tốt: Kỷ luật cao. Điểm cần cải thiện: Thêm sáng tạo."],
-        ["manager_review"],
-        ["manager_review.manager_email", "Manager@fpt.com"],
-        ["manager_review.evaluated_level", 3],
-        ["manager_review.strengths_keywords", "Kỷ luật, Trách nhiệm"],
-        ["manager_review.weaknesses_keywords", "Chưa có"],
-        ["manager_review.specific_feedback", "Hoàn thành xuất sắc nhiệm vụ"],
-        ["peer_reviews"],
-        ["peer_reviews.peer_email", "Peer1@fpt.com"],
-        ["peer_reviews.evaluated_level", 3],
-        ["peer_reviews.strengths_keywords", "Nhiệt tình, Đồng đội"],
-        ["peer_reviews.weaknesses_keywords", "Không"],
-        ["peer_reviews.specific_feedback", "Phối hợp làm việc nhóm rất tốt"]
+      // Sheet 1: CBI & Thông tin chung (Dạng Bảng Doanh Nghiệp Chuyên Nghiệp)
+      const cbiHeaders = [
+        "Họ và tên nhân viên",
+        "Email FPT",
+        "Chi nhánh",
+        "Kỳ đánh giá",
+        "Nhóm năng lực",
+        "Tên năng lực",
+        "Level Benchmark",
+        "Chỉ số hành vi (Indicators)",
+        "Tín hiệu đánh giá (Signals)",
+        "Group ID CBI",
+        "Name ID CBI",
+        "Level CBI",
+        "Điểm số CBI",
+        "Tóm tắt tín hiệu",
+        "Phân tích chi tiết",
+        "Phản hồi CBI"
       ];
-      const ws1 = XLSX.utils.aoa_to_sheet(cbiRows);
-      ws1['!cols'] = [{ wch: 45 }, { wch: 80 }];
-      XLSX.utils.book_append_sheet(wb, ws1, "CBI");
 
-      // Sheet 2: 360_cấp trên
-      const mgrRows = [
-        [
-          "Dấu thời gian",
-          "Địa chỉ email",
-          "Email FPT của Anh/Chị?",
-          "Anh/Chị thuộc Chi nhánh:",
-          "Kỳ đánh giá",
-          "Email Nhân sự được đánh giá",
-          "1a. Evaluated Level",
-          "1b. Strengths Keywords",
-          "1c. Specific Feedback"
-        ],
-        [
-          "2026-07-30 20:30:04",
-          "trunghd2@fpt.com",
-          "TrungHD2@FPT.COM",
-          "VTU",
-          "Tháng 7/2026",
-          "DungNV22@FPT.COM",
-          1,
-          "Sẵn sàng nhận bất kỳ nhiệm vụ được giao nào, Chủ động tìm cách giải quyết trở ngại phát sinh, Phối hợp với cá nhân/đơn vị liên quan",
-          "Cần ứng dụng 6 rõ và sáng tạo"
-        ],
-        [
-          "2026-08-01 16:46:16",
-          "truonght@fpt.com",
-          "TruongHT@FPT.COM",
-          "LDG",
-          "Tháng 7/2026",
-          "tangnx2@fpt.com",
-          2,
-          "Sẵn sàng nhận nhiệm vụ, Mọi nhiệm vụ đã nhận được thực thi và báo cáo theo nguyên tắc 6 rõ",
-          "Cần cải thiện phương pháp kiểm soát tiến độ công việc"
-        ]
+      const cbiRow1 = [
+        "Phạm Hồng Diệp",
+        "DiepPH4@fpt.com",
+        "AGG",
+        "Tháng 4/2026",
+        "GIÁ TRỊ CỐT LÕI",
+        "Duy trì và lan tỏa giá trị văn hóa FPT",
+        3,
+        "Level 1: Hiểu về các giá trị cốt lõi và có áp dụng trong quá trình quản trị phòng ban.\nLevel 2: Luôn thể hiện việc tuân thủ tốt các giá trị cốt lõi trong quá trình quản trị phòng ban.\nLevel 3: Có phương pháp để đảm bảo đội ngũ nhân viên của mình luôn ghi nhớ, tuân thủ và phát huy tối đa các giá trị cốt lõi trong công việc.",
+        "Level 1: Đề cập đến các khái niệm, độ hiểu biết về văn hóa/giá trị cốt lõi FPT, Đề cập việc áp dụng cá nhân, Đề cập việc áp dụng đội nhóm\nLevel 2: Tuân thủ và duy trì việc ứng dụng giá trị cốt lõi trong công việc, Mentor hướng dẫn đội ngũ, Duy trì môi trường làm việc\nLevel 3: Ứng dụng giá trị cốt lõi vào công tác quản lý, Theo dõi đánh giá, Đề xuất cải tiến",
+        "1",
+        "1",
+        "1",
+        "2/10",
+        "2/10 Level 1 Đề cập đến các khái niệm, độ hiểu biết về văn hóa/giá trị cốt lõi FPT",
+        "Ứng viên đạt Level 1 với 2 signals đã khớp.",
+        "Điểm tốt: Hiểu biết về văn hóa/giá trị cốt lõi FPT. Điểm cần cải thiện: Chưa có quy trình theo dõi cụ thể."
       ];
-      const ws2 = XLSX.utils.aoa_to_sheet(mgrRows);
-      ws2['!cols'] = [{ wch: 20 }, { wch: 22 }, { wch: 22 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 50 }, { wch: 40 }];
+
+      const cbiRow2 = [
+        "Nguyễn Văn A",
+        "Anv@fpt.com",
+        "FTELAU",
+        "T7/2026",
+        "Giá trị cốt lõi",
+        "Kỷ luật và thực thi nhiệm vụ",
+        3,
+        "Level 1: Sẵn sàng nhận mọi nhiệm vụ, tuân thủ nguyên tắc \"6 rõ\", tập trung thực thi và báo cáo kịp thời.\nLevel 2: Tự giải quyết trở ngại phát sinh, đồng thời tích cực phối hợp với cá nhân, đơn vị liên quan.\nLevel 3: Chủ động nhận nhiệm vụ khó, huấn luyện đội ngũ về tư duy chịu trách nhiệm đến cùng.",
+        "Level 1: Đề cập đến việc nhận ít nhất một nhiệm vụ cụ thể\nLevel 2: Tự mình tìm cách giải quyết trở ngại\nLevel 3: Xung phong nhận nhiệm vụ khó",
+        "1",
+        "1",
+        "2",
+        "5/10",
+        "5/10 Đạt Level 2.",
+        "Ứng viên đạt chỉ số hành vi Level 2.",
+        "Điểm tốt: Kỷ luật cao. Điểm cần cải thiện: Cần chủ động đề xuất giải pháp sáng tạo hơn."
+      ];
+
+      const ws1 = XLSX.utils.aoa_to_sheet([cbiHeaders, cbiRow1, cbiRow2]);
+      ws1['!cols'] = [
+        { wch: 22 }, { wch: 20 }, { wch: 12 }, { wch: 15 },
+        { wch: 20 }, { wch: 35 }, { wch: 15 }, { wch: 45 },
+        { wch: 45 }, { wch: 12 }, { wch: 12 }, { wch: 10 },
+        { wch: 12 }, { wch: 35 }, { wch: 35 }, { wch: 35 }
+      ];
+      XLSX.utils.book_append_sheet(wb, ws1, "CBI_Thông_tin_năng_lực");
+
+      // Sheet 2: 360_cấp trên (Manager Reviews)
+      const mgrHeaders = [
+        "Dấu thời gian",
+        "Email Quản lý đánh giá",
+        "Email FPT Quản lý",
+        "Chi nhánh",
+        "Kỳ đánh giá",
+        "Email Nhân sự được đánh giá",
+        "Mức đánh giá (Level 1-5)",
+        "Điểm mạnh (Keywords cách nhau phẩy)",
+        "Nhận xét / Phản hồi chi tiết"
+      ];
+      const mgrRow1 = [
+        "2026-07-30 20:30:04",
+        "KhiemPD@fpt.com",
+        "KhiemPD@fpt.com",
+        "AGG",
+        "Tháng 4/2026",
+        "DiepPH4@fpt.com",
+        2,
+        "Tôn trọng, Đổi mới, Đồng đội, Chí công, Gương mẫu, Sáng suốt",
+        "Hoàn thành tốt công tác quản lý phòng ban."
+      ];
+      const mgrRow2 = [
+        "2026-08-01 16:46:16",
+        "Manager@fpt.com",
+        "Manager@fpt.com",
+        "FTELAU",
+        "T7/2026",
+        "Anv@fpt.com",
+        3,
+        "Kỷ luật, Chịu trách nhiệm, Giao tiếp tốt",
+        "Thực hiện xuất sắc chỉ tiêu công việc."
+      ];
+      const ws2 = XLSX.utils.aoa_to_sheet([mgrHeaders, mgrRow1, mgrRow2]);
+      ws2['!cols'] = [{ wch: 20 }, { wch: 22 }, { wch: 22 }, { wch: 12 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 45 }, { wch: 40 }];
       XLSX.utils.book_append_sheet(wb, ws2, "360_cấp trên");
 
-      // Sheet 3: 360_Cấp dưới
-      const peerRows = [
-        [
-          "Dấu thời gian",
-          "Địa chỉ email",
-          "Email FPT của Anh/Chị?",
-          "Anh/Chị thuộc Chi nhánh:",
-          "Kỳ đánh giá",
-          "Nhân sự được đánh giá - CBQL của Anh/Chị:",
-          "1a. Evaluated Level",
-          "1b. Strengths Keywords",
-          "1c. Specific Feedback"
-        ],
-        [
-          "2026-07-28 17:39:30",
-          "maitrucquynhvt@gmail.com",
-          "HoaMX@fpt.com",
-          "VTU",
-          "Tháng 7/2026",
-          "CaoCT@FPT.COM",
-          3,
-          "Sẵn sàng nhận bất kỳ nhiệm vụ được giao nào, Vận dụng nguyên tắc 6 rõ, Xung phong nhận nhiệm vụ khó",
-          "Năng lực kỷ luật nhận nhiệm vụ và thực thi tốt."
-        ],
-        [
-          "2026-07-28 18:30:26",
-          "vyntk7@fpt.com",
-          "VyNTK7@fpt.com",
-          "VTU",
-          "Tháng 7/2026",
-          "CaoCT@FPT.COM",
-          3,
-          "Sẵn sàng nhận bất kỳ nhiệm vụ được giao nào, Huấn luyện đội ngũ tư duy chịu trách nhiệm đến cùng",
-          "Nhân sự làm việc rất tuyệt vời"
-        ]
+      // Sheet 3: 360_cấp dưới (Peer Reviews)
+      const peerHeaders = [
+        "Dấu thời gian",
+        "Email Đồng nghiệp đánh giá",
+        "Email FPT Đồng nghiệp",
+        "Chi nhánh",
+        "Kỳ đánh giá",
+        "Email Nhân sự được đánh giá",
+        "Mức đánh giá (Level 1-5)",
+        "Điểm mạnh (Keywords cách nhau phẩy)",
+        "Nhận xét / Phản hồi chi tiết"
       ];
-      const ws3 = XLSX.utils.aoa_to_sheet(peerRows);
-      ws3['!cols'] = [{ wch: 20 }, { wch: 25 }, { wch: 22 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 50 }, { wch: 40 }];
-      XLSX.utils.book_append_sheet(wb, ws3, "360_Cấp dưới");
+      const peerRow1 = [
+        "2026-07-28 17:39:30",
+        "VietDQ14@fpt.com",
+        "VietDQ14@fpt.com",
+        "AGG",
+        "Tháng 4/2026",
+        "DiepPH4@fpt.com",
+        2,
+        "Tôn trọng, Đổi mới, Đồng đội, Chí công, Gương mẫu",
+        "Phối hợp làm việc nhóm rất hiệu quả."
+      ];
+      const peerRow2 = [
+        "2026-07-28 18:30:26",
+        "KhangLM6@fpt.com",
+        "KhangLM6@fpt.com",
+        "AGG",
+        "Tháng 4/2026",
+        "DiepPH4@fpt.com",
+        2,
+        "Tôn trọng, Đổi mới, Đồng đội",
+        "Hỗ trợ các thành viên trong đội nhóm nhiệt tình."
+      ];
+      const peerRow3 = [
+        "2026-07-28 18:30:26",
+        "Peer1@fpt.com",
+        "Peer1@fpt.com",
+        "FTELAU",
+        "T7/2026",
+        "Anv@fpt.com",
+        3,
+        "Nhiệt tình, Trách nhiệm",
+        "Làm việc nhóm rất tốt."
+      ];
+      const ws3 = XLSX.utils.aoa_to_sheet([peerHeaders, peerRow1, peerRow2, peerRow3]);
+      ws3['!cols'] = [{ wch: 20 }, { wch: 22 }, { wch: 22 }, { wch: 12 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 45 }, { wch: 40 }];
+      XLSX.utils.book_append_sheet(wb, ws3, "360_cấp dưới");
 
-      const filename = `DNB_IDP_Mau_Chuan_3_Sheets.xlsx`;
+      const filename = `DNB_IDP_Mau_Chuan_Doanh_Nghiep.xlsx`;
       XLSX.writeFile(wb, filename);
     } catch (err) {
       alert('Lỗi khi tải file Excel mẫu: ' + err.message);
     }
   }
 
-  // --- IMPORT FROM EXCEL FILE (3 SHEETS 100% FULL PARSER) ---
+  // --- IMPORT FROM EXCEL FILE (HUMAN BUSINESS & MULTI-SHEET PARSER) ---
   function handleExcelImport(file) {
     if (typeof XLSX === 'undefined') {
       alert('Đang tải thư viện đọc file Excel... Vui lòng thử lại sau giây lát.');
@@ -1052,65 +1086,189 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
 
-        // 1. Read Base CBI Sheet (Sheet 1)
-        let sheetCbiName = workbook.SheetNames.find(s => s.toLowerCase().includes('cbi') || s.toLowerCase().includes('thông tin') || s.toLowerCase().includes('general')) || workbook.SheetNames[0];
-        const wsCbi = workbook.Sheets[sheetCbiName];
-        const cbiJsonRows = XLSX.utils.sheet_to_json(wsCbi, { header: 1 });
+        const candidateMap = {};
 
-        const basePayload = {
-          employee_info: { full_name: "", fpt_email: "", branch: "", evaluation_period: "" },
-          competency_benchmark: { competency_group: "", competency_name: "", benchmark_level: 1, behaviour_indicator: [], signals: [] },
-          cbi_agent_data: [{ competency_group_id: "1", competency_name_id: "1", level: "1", score: "", signal_summary: "", standard_breakdown: "", feedback: "" }],
-          manager_review: { manager_email: "", evaluated_level: 1, strengths_keywords: [], weaknesses_keywords: [], specific_feedback: "" },
-          peer_reviews: [{ peer_email: "", evaluated_level: 1, strengths_keywords: [], weaknesses_keywords: [], specific_feedback: "" }]
-        };
-
-        cbiJsonRows.forEach(row => {
-          if (!row || row.length < 2) return;
-          const k = String(row[0] || '').trim();
-          const v = row[1] !== undefined && row[1] !== null ? String(row[1]).trim() : '';
-
-          if (k.startsWith('employee_info.')) {
-            basePayload.employee_info[k.replace('employee_info.', '')] = v;
-          } else if (k.startsWith('competency_benchmark.')) {
-            const field = k.replace('competency_benchmark.', '');
-            if (field === 'benchmark_level') {
-              basePayload.competency_benchmark.benchmark_level = parseInt(v) || 1;
-            } else if (field === 'behaviour_indicator' && v) {
-              v.split('\n').forEach(line => {
-                const match = line.match(/Level\s*(\d+)[\t\s:]+(.*)/i);
-                if (match) {
-                  basePayload.competency_benchmark.behaviour_indicator.push({ level: parseInt(match[1]) || 1, description: match[2].trim() });
+        // Helper to get or init candidate payload
+        function getCandidate(email, name = '') {
+          const key = (email || 'default@fpt.com').toLowerCase().trim();
+          if (!candidateMap[key]) {
+            candidateMap[key] = {
+              employee_info: {
+                full_name: name || key.split('@')[0].toUpperCase(),
+                fpt_email: key,
+                branch: "AGG",
+                evaluation_period: "Tháng 4/2026"
+              },
+              competency_benchmark: {
+                competency_group: "GIÁ TRỊ CỐT LÕI",
+                competency_name: "Duy trì và lan tỏa giá trị văn hóa FPT",
+                benchmark_level: 3,
+                behaviour_indicator: [
+                  { level: 1, description: "Hiểu về các giá trị cốt lõi và áp dụng trong quản trị." },
+                  { level: 2, description: "Tuân thủ tốt các giá trị cốt lõi." },
+                  { level: 3, description: "Có phương pháp để đội ngũ phát huy giá trị cốt lõi." }
+                ],
+                signals: [
+                  { level: 1, indicators: ["Hiểu biết văn hóa/giá trị cốt lõi FPT", "Áp dụng cá nhân", "Áp dụng đội nhóm"] },
+                  { level: 2, indicators: ["Tuân thủ duy trì ứng dụng", "Mentor hướng dẫn đội ngũ"] },
+                  { level: 3, indicators: ["Ứng dụng giá trị cốt lõi vào quản lý", "Theo dõi đánh giá"] }
+                ]
+              },
+              cbi_agent_data: [
+                {
+                  competency_group_id: "1",
+                  competency_name_id: "1",
+                  level: "1",
+                  score: "2/10",
+                  signal_summary: "2/10 Level 1 Đề cập đến các khái niệm",
+                  standard_breakdown: "Ứng viên đạt Level 1.",
+                  feedback: "Điểm tốt: Hiểu biết văn hóa. Điểm cần cải thiện: Chưa có quy trình cụ thể."
                 }
-              });
-            } else if (field === 'signals' && v) {
-              const blocks = v.split(/Level\s*(\d+)[\s:]*/i);
-              for (let i = 1; i < blocks.length; i += 2) {
-                basePayload.competency_benchmark.signals.push({
-                  level: parseInt(blocks[i]) || 1,
-                  indicators: (blocks[i + 1] || '').split('\n').map(x => x.replace(/^-\s*/, '').trim()).filter(Boolean)
-                });
+              ],
+              manager_review: {
+                manager_email: "KhiemPD@fpt.com",
+                evaluated_level: 2,
+                strengths_keywords: ["Tôn trọng", "Đổi mới", "Đồng đội"],
+                weaknesses_keywords: [],
+                specific_feedback: "Hoàn thành tốt nhiệm vụ."
+              },
+              peer_reviews: []
+            };
+          }
+          return candidateMap[key];
+        }
+
+        // 1. Read Sheet 1: CBI / Thông tin chung
+        const sheetCbiName = workbook.SheetNames.find(s => s.toLowerCase().includes('cbi') || s.toLowerCase().includes('thông tin') || s.toLowerCase().includes('general')) || workbook.SheetNames[0];
+        if (sheetCbiName && workbook.Sheets[sheetCbiName]) {
+          const ws = workbook.Sheets[sheetCbiName];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+          if (rows.length > 0) {
+            const firstRowStr = String(rows[0][0] || '').toLowerCase();
+
+            // Format A: Tabular Enterprise Business Format (Headers on Row 0)
+            if (firstRowStr.includes('họ và tên') || firstRowStr.includes('email') || firstRowStr.includes('tên nhân viên')) {
+              const headers = rows[0].map(h => String(h || '').toLowerCase().trim());
+
+              const findCol = (terms) => headers.findIndex(h => terms.some(t => h.includes(t)));
+
+              const colName = findCol(['họ và tên', 'tên nhân viên', 'full_name']);
+              const colEmail = findCol(['email fpt', 'email', 'fpt_email']);
+              const colBranch = findCol(['chi nhánh', 'branch']);
+              const colPeriod = findCol(['kỳ đánh giá', 'period']);
+              const colGroup = findCol(['nhóm năng lực', 'competency_group']);
+              const colCompName = findCol(['tên năng lực', 'competency_name']);
+              const colLevel = findCol(['level benchmark', 'benchmark_level']);
+              const colInd = findCol(['chỉ số hành vi', 'behaviour_indicator']);
+              const colSig = findCol(['tín hiệu', 'signals']);
+              const colCbiGroupId = findCol(['group id']);
+              const colCbiNameId = findCol(['name id']);
+              const colCbiLevel = findCol(['level cbi']);
+              const colCbiScore = findCol(['điểm số cbi', 'score']);
+              const colCbiSummary = findCol(['tóm tắt tín hiệu', 'signal_summary']);
+              const colCbiBreakdown = findCol(['phân tích chi tiết', 'standard_breakdown']);
+              const colCbiFeedback = findCol(['phản hồi cbi', 'feedback']);
+
+              for (let r = 1; r < rows.length; r++) {
+                const row = rows[r];
+                if (!row || !row.length) continue;
+                const email = colEmail >= 0 ? String(row[colEmail] || '').trim() : '';
+                const name = colName >= 0 ? String(row[colName] || '').trim() : '';
+                if (!email && !name) continue;
+
+                const cand = getCandidate(email || name, name);
+                if (colName >= 0 && row[colName]) cand.employee_info.full_name = String(row[colName]).trim();
+                if (colEmail >= 0 && row[colEmail]) cand.employee_info.fpt_email = String(row[colEmail]).trim();
+                if (colBranch >= 0 && row[colBranch]) cand.employee_info.branch = String(row[colBranch]).trim();
+                if (colPeriod >= 0 && row[colPeriod]) cand.employee_info.evaluation_period = String(row[colPeriod]).trim();
+
+                if (colGroup >= 0 && row[colGroup]) cand.competency_benchmark.competency_group = String(row[colGroup]).trim();
+                if (colCompName >= 0 && row[colCompName]) cand.competency_benchmark.competency_name = String(row[colCompName]).trim();
+                if (colLevel >= 0 && row[colLevel]) cand.competency_benchmark.benchmark_level = parseInt(row[colLevel]) || 3;
+
+                if (colInd >= 0 && row[colInd]) {
+                  const lines = String(row[colInd]).split('\n');
+                  cand.competency_benchmark.behaviour_indicator = [];
+                  lines.forEach(line => {
+                    const match = line.match(/Level\s*(\d+)[\t\s:]+(.*)/i);
+                    if (match) {
+                      cand.competency_benchmark.behaviour_indicator.push({ level: parseInt(match[1]) || 1, description: match[2].trim() });
+                    }
+                  });
+                }
+
+                if (colSig >= 0 && row[colSig]) {
+                  const blocks = String(row[colSig]).split(/Level\s*(\d+)[\s:]*/i);
+                  cand.competency_benchmark.signals = [];
+                  for (let i = 1; i < blocks.length; i += 2) {
+                    cand.competency_benchmark.signals.push({
+                      level: parseInt(blocks[i]) || 1,
+                      indicators: (blocks[i + 1] || '').split('\n').map(x => x.replace(/^-\s*/, '').trim()).filter(Boolean)
+                    });
+                  }
+                }
+
+                if (colCbiScore >= 0 || colCbiFeedback >= 0) {
+                  cand.cbi_agent_data[0] = {
+                    competency_group_id: colCbiGroupId >= 0 ? String(row[colCbiGroupId] || '1') : "1",
+                    competency_name_id: colCbiNameId >= 0 ? String(row[colCbiNameId] || '1') : "1",
+                    level: colCbiLevel >= 0 ? String(row[colCbiLevel] || '1') : "1",
+                    score: colCbiScore >= 0 ? String(row[colCbiScore] || '') : '',
+                    signal_summary: colCbiSummary >= 0 ? String(row[colCbiSummary] || '') : '',
+                    standard_breakdown: colCbiBreakdown >= 0 ? String(row[colCbiBreakdown] || '') : '',
+                    feedback: colCbiFeedback >= 0 ? String(row[colCbiFeedback] || '') : ''
+                  };
+                }
               }
             } else {
-              basePayload.competency_benchmark[field] = v;
+              // Format B: Key-Value Technical Fallback Layout
+              const basePayload = getCandidate('default@fpt.com');
+              rows.forEach(row => {
+                if (!row || row.length < 2) return;
+                const k = String(row[0] || '').trim();
+                const v = row[1] !== undefined && row[1] !== null ? String(row[1]).trim() : '';
+
+                if (k.startsWith('employee_info.')) {
+                  basePayload.employee_info[k.replace('employee_info.', '')] = v;
+                } else if (k.startsWith('competency_benchmark.')) {
+                  const field = k.replace('competency_benchmark.', '');
+                  if (field === 'benchmark_level') basePayload.competency_benchmark.benchmark_level = parseInt(v) || 1;
+                  else if (field === 'behaviour_indicator' && v) {
+                    basePayload.competency_benchmark.behaviour_indicator = [];
+                    v.split('\n').forEach(line => {
+                      const match = line.match(/Level\s*(\d+)[\t\s:]+(.*)/i);
+                      if (match) basePayload.competency_benchmark.behaviour_indicator.push({ level: parseInt(match[1]) || 1, description: match[2].trim() });
+                    });
+                  } else if (field === 'signals' && v) {
+                    basePayload.competency_benchmark.signals = [];
+                    const blocks = v.split(/Level\s*(\d+)[\s:]*/i);
+                    for (let i = 1; i < blocks.length; i += 2) {
+                      basePayload.competency_benchmark.signals.push({
+                        level: parseInt(blocks[i]) || 1,
+                        indicators: (blocks[i + 1] || '').split('\n').map(x => x.replace(/^-\s*/, '').trim()).filter(Boolean)
+                      });
+                    }
+                  } else basePayload.competency_benchmark[field] = v;
+                } else if (k.startsWith('cbi_agent_data.')) {
+                  basePayload.cbi_agent_data[0][k.replace('cbi_agent_data.', '')] = v;
+                } else if (k.startsWith('manager_review.')) {
+                  const field = k.replace('manager_review.', '');
+                  if (field === 'evaluated_level') basePayload.manager_review.evaluated_level = parseInt(v) || 1;
+                  else if (field.includes('keywords')) basePayload.manager_review[field] = v.split(',').map(x => x.trim()).filter(Boolean);
+                  else basePayload.manager_review[field] = v;
+                } else if (k.startsWith('peer_reviews.')) {
+                  const field = k.replace('peer_reviews.', '');
+                  if (field === 'evaluated_level') basePayload.peer_reviews[0].evaluated_level = parseInt(v) || 1;
+                  else if (field.includes('keywords')) basePayload.peer_reviews[0][field] = v.split(',').map(x => x.trim()).filter(Boolean);
+                  else basePayload.peer_reviews[0][field] = v;
+                }
+              });
             }
-          } else if (k.startsWith('cbi_agent_data.')) {
-            basePayload.cbi_agent_data[0][k.replace('cbi_agent_data.', '')] = v;
-          } else if (k.startsWith('manager_review.')) {
-            const field = k.replace('manager_review.', '');
-            if (field === 'evaluated_level') basePayload.manager_review.evaluated_level = parseInt(v) || 1;
-            else if (field.includes('keywords')) basePayload.manager_review[field] = v.split(',').map(x => x.trim()).filter(Boolean);
-            else basePayload.manager_review[field] = v;
-          } else if (k.startsWith('peer_reviews.')) {
-            const field = k.replace('peer_reviews.', '');
-            if (field === 'evaluated_level') basePayload.peer_reviews[0].evaluated_level = parseInt(v) || 1;
-            else if (field.includes('keywords')) basePayload.peer_reviews[0][field] = v.split(',').map(x => x.trim()).filter(Boolean);
-            else basePayload.peer_reviews[0][field] = v;
           }
-        });
+        }
 
         // 2. Read Sheet 2: 360_cấp trên (Manager Reviews)
-        const parsedManagers = {};
         const sheetMgrName = workbook.SheetNames.find(s => s.toLowerCase().includes('360_cấp trên') || s.toLowerCase().includes('cấp trên'));
         if (sheetMgrName && workbook.Sheets[sheetMgrName]) {
           const mgrRows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetMgrName], { header: 1 });
@@ -1118,12 +1276,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = mgrRows[r];
             if (!row || row.length < 6) continue;
             const targetEmail = String(row[5] || '').trim();
-            const mgrEmail = String(row[2] || '').trim();
+            const mgrEmail = String(row[2] || row[1] || '').trim();
             const level = parseInt(row[6]) || 1;
             const strengths = String(row[7] || '').split(',').map(s => s.trim()).filter(Boolean);
             const feedback = String(row[8] || '').trim();
             if (targetEmail) {
-              parsedManagers[targetEmail.toLowerCase()] = {
+              const cand = getCandidate(targetEmail);
+              cand.manager_review = {
                 manager_email: mgrEmail,
                 evaluated_level: level,
                 strengths_keywords: strengths,
@@ -1134,8 +1293,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        // 3. Read Sheet 3: 360_Cấp dưới (Peer Reviews)
-        const parsedPeers = {};
+        // 3. Read Sheet 3: 360_cấp dưới (Peer Reviews)
         const sheetPeerName = workbook.SheetNames.find(s => s.toLowerCase().includes('360_cấp dưới') || s.toLowerCase().includes('cấp dưới'));
         if (sheetPeerName && workbook.Sheets[sheetPeerName]) {
           const peerRows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetPeerName], { header: 1 });
@@ -1143,14 +1301,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = peerRows[r];
             if (!row || row.length < 6) continue;
             const targetEmail = String(row[5] || '').trim();
-            const peerEmail = String(row[2] || '').trim();
+            const peerEmail = String(row[2] || row[1] || '').trim();
             const level = parseInt(row[6]) || 1;
             const strengths = String(row[7] || '').split(',').map(s => s.trim()).filter(Boolean);
             const feedback = String(row[8] || '').trim();
             if (targetEmail) {
-              const key = targetEmail.toLowerCase();
-              if (!parsedPeers[key]) parsedPeers[key] = [];
-              parsedPeers[key].push({
+              const cand = getCandidate(targetEmail);
+              if (!Array.isArray(cand.peer_reviews)) cand.peer_reviews = [];
+              cand.peer_reviews.push({
                 peer_email: peerEmail,
                 evaluated_level: level,
                 strengths_keywords: strengths,
@@ -1160,33 +1318,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         }
-
-        // Combine candidates
-        const candidateMap = {};
-
-        // Default base candidate
-        const defaultEmail = basePayload.employee_info.fpt_email || 'default@fpt.com';
-        candidateMap[defaultEmail.toLowerCase()] = JSON.parse(JSON.stringify(basePayload));
-
-        // Add employees from Sheet 2
-        Object.keys(parsedManagers).forEach(emailKey => {
-          if (!candidateMap[emailKey]) {
-            candidateMap[emailKey] = JSON.parse(JSON.stringify(basePayload));
-            candidateMap[emailKey].employee_info.full_name = emailKey.split('@')[0].toUpperCase();
-            candidateMap[emailKey].employee_info.fpt_email = emailKey;
-          }
-          candidateMap[emailKey].manager_review = parsedManagers[emailKey];
-        });
-
-        // Add employees from Sheet 3
-        Object.keys(parsedPeers).forEach(emailKey => {
-          if (!candidateMap[emailKey]) {
-            candidateMap[emailKey] = JSON.parse(JSON.stringify(basePayload));
-            candidateMap[emailKey].employee_info.full_name = emailKey.split('@')[0].toUpperCase();
-            candidateMap[emailKey].employee_info.fpt_email = emailKey;
-          }
-          candidateMap[emailKey].peer_reviews = parsedPeers[emailKey];
-        });
 
         state.excelParsedCandidates = candidateMap;
 
@@ -1208,15 +1339,15 @@ document.addEventListener('DOMContentLoaded', () => {
           candidateSelectGroup.classList.add('hidden');
         }
 
-        // Set first employee as active state
+        // Active selected candidate
         const firstEmail = emails[0];
         state.payload = JSON.parse(JSON.stringify(candidateMap[firstEmail]));
         populateFormFromState();
         updateOutputViewers();
 
-        alert(`✓ Đã đọc 100% dữ liệu từ 3 Sheets file Excel "${file.name}"!\nTìm thấy ${emails.length} nhân sự được đánh giá.`);
+        alert(`✓ Đã nhập dữ liệu thành công từ file Excel "${file.name}"!\nHệ thống tìm thấy ${emails.length} nhân sự được đánh giá.`);
       } catch (err) {
-        alert('Lỗi đọc dữ liệu tệp Excel 3 Sheets: ' + err.message);
+        alert('Lỗi đọc dữ liệu tệp Excel: ' + err.message);
       }
     };
     reader.readAsArrayBuffer(file);
