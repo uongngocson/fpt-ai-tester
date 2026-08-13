@@ -111,6 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const envSelect = document.getElementById('envSelect');
   const customDomainInput = document.getElementById('customDomainInput');
   const presetSelect = document.getElementById('presetSelect');
+  const btnImportExcel = document.getElementById('btnImportExcel');
+  const excelFileInput = document.getElementById('excelFileInput');
   const btnBlankForm = document.getElementById('btnBlankForm');
   const btnResetForm = document.getElementById('btnResetForm');
   
@@ -237,6 +239,20 @@ document.addEventListener('DOMContentLoaded', () => {
       state.customDomain = customDomainInput.value.trim();
       updateOutputViewers();
     });
+
+    // Excel Import Button & Input
+    if (btnImportExcel && excelFileInput) {
+      btnImportExcel.addEventListener('click', () => {
+        excelFileInput.value = '';
+        excelFileInput.click();
+      });
+
+      excelFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleExcelImport(e.target.files[0]);
+        }
+      });
+    }
 
     // Blank Form Button
     btnBlankForm.addEventListener('click', () => {
@@ -864,5 +880,144 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       alert('Lỗi xuất Excel: ' + err.message);
     }
+  }
+
+  // --- IMPORT FROM EXCEL FILE ---
+  function handleExcelImport(file) {
+    if (typeof XLSX === 'undefined') {
+      alert('Đang tải thư viện đọc file Excel... Vui lòng thử lại sau giây lát.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        let sheetName = workbook.SheetNames.find(s => s.toLowerCase().includes('thông tin') || s.toLowerCase().includes('general') || s.toLowerCase().includes('idp')) || workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        const importedPayload = {
+          employee_info: {
+            full_name: "",
+            fpt_email: "",
+            branch: "",
+            evaluation_period: ""
+          },
+          competency_benchmark: {
+            competency_group: "",
+            competency_name: "",
+            benchmark_level: 1,
+            behaviour_indicator: [],
+            signals: []
+          },
+          cbi_agent_data: [
+            {
+              competency_group_id: "1",
+              competency_name_id: "1",
+              level: "1",
+              score: "",
+              signal_summary: "",
+              standard_breakdown: "",
+              feedback: ""
+            }
+          ],
+          manager_review: {
+            manager_email: "",
+            evaluated_level: 1,
+            strengths_keywords: [],
+            weaknesses_keywords: [],
+            specific_feedback: ""
+          },
+          peer_reviews: [
+            {
+              peer_email: "",
+              evaluated_level: 1,
+              strengths_keywords: [],
+              weaknesses_keywords: [],
+              specific_feedback: ""
+            }
+          ]
+        };
+
+        jsonRows.forEach(row => {
+          if (!row || row.length < 2) return;
+          const k = String(row[0] || '').trim();
+          const v = row[1] !== undefined && row[1] !== null ? String(row[1]).trim() : '';
+
+          if (k.startsWith('employee_info.')) {
+            const field = k.replace('employee_info.', '');
+            importedPayload.employee_info[field] = v;
+          } else if (k.startsWith('competency_benchmark.')) {
+            const field = k.replace('competency_benchmark.', '');
+            if (field === 'benchmark_level') {
+              importedPayload.competency_benchmark.benchmark_level = parseInt(v) || 1;
+            } else if (field === 'behaviour_indicator' && v) {
+              const lines = v.split('\n');
+              lines.forEach(line => {
+                const match = line.match(/Level\s*(\d+)[\t\s:]+(.*)/i);
+                if (match) {
+                  importedPayload.competency_benchmark.behaviour_indicator.push({
+                    level: parseInt(match[1]) || 1,
+                    description: match[2].trim()
+                  });
+                }
+              });
+            } else if (field === 'signals' && v) {
+              const blocks = v.split(/Level\s*(\d+)[\s:]*/i);
+              for (let i = 1; i < blocks.length; i += 2) {
+                const lvl = parseInt(blocks[i]) || 1;
+                const content = blocks[i + 1] || '';
+                const indicators = content.split('\n').map(x => x.replace(/^-\s*/, '').trim()).filter(Boolean);
+                importedPayload.competency_benchmark.signals.push({
+                  level: lvl,
+                  indicators: indicators
+                });
+              }
+            } else {
+              importedPayload.competency_benchmark[field] = v;
+            }
+          } else if (k.startsWith('cbi_agent_data.')) {
+            const field = k.replace('cbi_agent_data.', '');
+            importedPayload.cbi_agent_data[0][field] = v;
+          } else if (k.startsWith('manager_review.')) {
+            const field = k.replace('manager_review.', '');
+            if (field === 'evaluated_level') {
+              importedPayload.manager_review.evaluated_level = parseInt(v) || 1;
+            } else if (field.includes('keywords')) {
+              importedPayload.manager_review[field] = v.split(',').map(x => x.trim()).filter(Boolean);
+            } else {
+              importedPayload.manager_review[field] = v;
+            }
+          } else if (k.startsWith('peer_reviews.')) {
+            const field = k.replace('peer_reviews.', '');
+            if (field === 'evaluated_level') {
+              importedPayload.peer_reviews[0].evaluated_level = parseInt(v) || 1;
+            } else if (field.includes('keywords')) {
+              importedPayload.peer_reviews[0][field] = v.split(',').map(x => x.trim()).filter(Boolean);
+            } else {
+              importedPayload.peer_reviews[0][field] = v;
+            }
+          }
+        });
+
+        if (!importedPayload.competency_benchmark.behaviour_indicator.length) {
+          importedPayload.competency_benchmark.behaviour_indicator.push({ level: 1, description: "" });
+        }
+        if (!importedPayload.competency_benchmark.signals.length) {
+          importedPayload.competency_benchmark.signals.push({ level: 1, indicators: [""] });
+        }
+
+        state.payload = importedPayload;
+        populateFormFromState();
+        updateOutputViewers();
+        alert(`✓ Đã nhập dữ liệu thành công từ tệp Excel "${file.name}"!`);
+      } catch (err) {
+        alert('Lỗi đọc dữ liệu tệp Excel: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
   }
 });
