@@ -1,0 +1,235 @@
+{
+  "presets": [
+    {
+      "id": "prompt_default",
+      "name": "Mẫu 1: Phạm Hồng Diệp (Tháng 4/2026) - Từ Yêu Cầu Gốc",
+      "description": "Dữ liệu mẫu đầy đủ các trường employee_info, competency_benchmark, cbi_agent_data, manager_review và peer_reviews.",
+      "data": {
+        "employee_info": {
+          "full_name": "Phạm Hồng Diệp",
+          "fpt_email": "DiepPH4@fpt.com",
+          "branch": "AGG",
+          "evaluation_period": "Tháng 4/2026"
+        },
+        "competency_benchmark": {
+          "competency_group": "GIÁ TRỊ CỐT LÕI",
+          "competency_name": "Duy trì và lan tỏa giá trị văn hóa FPT",
+          "benchmark_level": 3,
+          "behaviour_indicator": [
+            {
+              "level": 1,
+              "description": "Hiểu về các giá trị cốt lõi và có áp dụng trong quá trình quản trị phòng ban."
+            },
+            {
+              "level": 2,
+              "description": "Luôn thể hiện việc tuân thủ tốt các giá trị cốt lõi trong quá trình quản trị phòng ban."
+            },
+            {
+              "level": 3,
+              "description": "Có phương pháp để đảm bảo đội ngũ nhân viên của mình luôn ghi nhớ, tuân thủ và phát huy tối đa các giá trị cốt lõi trong công việc."
+            }
+          ],
+          "signals": [
+            {
+              "level": 1,
+              "indicators": [
+                "Đề cập đến các khái niệm, độ hiểu biết về văn hóa/giá trị cốt lõi FPT",
+                "Đề cập việc áp dụng cá nhân",
+                "Đề cập việc áp dụng đội nhóm"
+              ]
+            },
+            {
+              "level": 2,
+              "indicators": [
+                "Tuân thủ và duy trì việc ứng dụng giá trị cốt lõi trong công việc",
+                "Mentor hướng dẫn đội ngũ áp dụng văn hóa/giá trị cốt lõi FPT",
+                "Duy trì môi trường làm việc có văn hóa/giá trị cốt lõi FPT"
+              ]
+            },
+            {
+              "level": 3,
+              "indicators": [
+                "Ứng dụng giá trị cốt lõi vào việc công tác quản lý, quản trị",
+                "Theo dõi và đánh giá mức độ áp dụng của nhân viên",
+                "Gợi ý điều chỉnh hành vi ứng xử cho phù hợp với các giá trị cốt lõi",
+                "Đề xuất cải tiến quy trình/chính sách thúc đẩy văn hóa tổ chức"
+              ]
+            }
+          ]
+        },
+        "cbi_agent_data": [
+          {
+            "competency_group_id": "1",
+            "competency_name_id": "1",
+            "level": "1",
+            "score": "2/10",
+            "signal_summary": "2/10 Level 1 Đề cập đến các khái niệm, độ hiểu biết về văn hóa/giá trị cốt lõi FPT. Đề cập việc áp dụng đội nhóm",
+            "standard_breakdown": "Ứng viên đạt Level 1 với 2 signals đã khớp.",
+            "feedback": "Điểm tốt: Hiểu biết về văn hóa/giá trị cốt lõi FPT. Áp dụng vào đội nhóm. Điểm cần cải thiện: Chưa có quy trình theo dõi và đánh giá cụ thể."
+          }
+        ],
+        "manager_review": {
+          "manager_email": "KhiemPD@fpt.com",
+          "evaluated_level": 2,
+          "strengths_keywords": [
+            "Tôn trọng",
+            "Đổi mới",
+            "Đồng đội",
+            "Chí công",
+            "Gương mẫu",
+            "Sáng suốt"
+          ],
+          "weaknesses_keywords": [
+            "Không ý kiến"
+          ],
+          "specific_feedback": "Không"
+        },
+        "peer_reviews": [
+          {
+            "peer_email": "DiepPH4@fpt.com",
+            "evaluated_level": 3,
+            "strengths_keywords": [
+              "Tôn trọng",
+              "Đổi mới",
+              "Đồng đội",
+              "Chí công",
+              "Gương mẫu",
+              "Sáng suốt"
+            ],
+            "weaknesses_keywords": [
+              "Không ý kiến"
+            ],
+            "specific_feedback": "Không"
+          },
+          {
+            "peer_email": "VietDQ14@fpt.com",
+            "evaluated_level": 2,
+            "strengths_keywords": [
+              "Tôn trọng",
+              "Đổi mới",
+              "Đồng đội",
+              "Chí công",
+              "Gương mẫu"
+            ],
+            "weaknesses_keywords": [
+              "Sáng suốt"
+            ],
+            "specific_feedback": "Không ý kiến"
+          },
+          {
+            "peer_email": "KhangLM6@fpt.com",
+            "evaluated_level": 2,
+            "strengths_keywords": [
+              "Tôn trọng",
+              "Đổi mới",
+              "Đồng đội"
+            ],
+            "weaknesses_keywords": [
+              "Chí công",
+              "Gương mẫu",
+              "Sáng suốt"
+            ],
+            "specific_feedback": "Em không ý kiến"
+          }
+        ]
+      }
+    },
+    {
+      "id": "excel_dnb_idp",
+      "name": "Mẫu 2: Nguyễn Văn A (T7/2026) - Trích Từ DNB_IDP.xlsx",
+      "description": "Dữ liệu mẫu từ file Excel DNB_IDP.xlsx về năng lực Kỷ luật và thực thi nhiệm vụ.",
+      "data": {
+        "employee_info": {
+          "full_name": "Nguyễn Văn A",
+          "fpt_email": "Anv@fpt.com",
+          "branch": "FTELAU",
+          "evaluation_period": "T7/2026"
+        },
+        "competency_benchmark": {
+          "competency_group": "Giá trị cốt lõi",
+          "competency_name": "Kỷ luật và thực thi nhiệm vụ",
+          "benchmark_level": 3,
+          "behaviour_indicator": [
+            {
+              "level": 1,
+              "description": "Sẵn sàng nhận mọi nhiệm vụ, tuân thủ nguyên tắc \"6 rõ\", tập trung thực thi và báo cáo kịp thời."
+            },
+            {
+              "level": 2,
+              "description": "Tự giải quyết trở ngại phát sinh, đồng thời tích cực phối hợp với cá nhân, đơn vị liên quan đảm bảo hoàn thành tốt nhiệm vụ."
+            },
+            {
+              "level": 3,
+              "description": "Chủ động nhận nhiệm vụ khó, huấn luyện đội ngũ về tư duy chịu trách nhiệm đến cùng; có phương pháp kiểm soát tiến độ và đề xuất cải tiến nhằm nâng cao kỷ luật thực thi tại đơn vị."
+            }
+          ],
+          "signals": [
+            {
+              "level": 1,
+              "indicators": [
+                "Đề cập đến việc nhận ít nhất một nhiệm vụ cụ thể",
+                "Liệt kê được ít nhất 3 trong 6 yếu tố trong nguyên tắc 6 rõ của FPT: 1. Rõ mặt trận trọng điểm; 2. Rõ mục tiêu; 3. Rõ hành động; 4. Rõ người làm; 5. Rõ kết quả; 6. Rõ ngân sách",
+                "Đảm bảo mọi nhiệm vụ được thực thi và báo cáo kịp thời"
+              ]
+            },
+            {
+              "level": 2,
+              "indicators": [
+                "Tự mình tìm cách giải quyết một trở ngại cụ thể phát sinh",
+                "Phối hợp với cá nhân, đơn vị liên quan khi thực hiện nhiệm vụ",
+                "Có kết quả, thành quả cụ thể cho một nhiệm vụ"
+              ]
+            },
+            {
+              "level": 3,
+              "indicators": [
+                "Xung phong nhận nhiệm vụ khó hoặc thách thức tại đơn vị",
+                "Huấn luyện đội ngũ tư duy chịu trách nhiệm đến cùng",
+                "Nêu rõ phương pháp hoặc cách thức kiểm soát tiến độ công việc",
+                "Đề xuất cải tiến cụ thể nhằm nâng cao tính kỷ luật thực thi trong toàn bộ đơn vị"
+              ]
+            }
+          ]
+        },
+        "cbi_agent_data": [
+          {
+            "competency_group_id": "1",
+            "competency_name_id": "1",
+            "level": "2",
+            "score": "5/10",
+            "signal_summary": "5/10 Đạt Level 2. Tự mình tìm cách giải quyết trở ngại phát sinh và phối hợp tốt.",
+            "standard_breakdown": "Ứng viên đạt chỉ số hành vi Level 2.",
+            "feedback": "Điểm mạnh: Tinh thần kỷ luật cao. Điểm cần cải thiện: Cần chủ động đề xuất giải pháp sáng tạo hơn."
+          }
+        ],
+        "manager_review": {
+          "manager_email": "Manager@fpt.com",
+          "evaluated_level": 3,
+          "strengths_keywords": [
+            "Chịu trách nhiệm",
+            "Kỷ luật",
+            "Giao tiếp tốt"
+          ],
+          "weaknesses_keywords": [
+            "Cần thêm sáng tạo"
+          ],
+          "specific_feedback": "Hoàn thành xuất sắc chỉ tiêu được giao trong quý."
+        },
+        "peer_reviews": [
+          {
+            "peer_email": "Peer1@fpt.com",
+            "evaluated_level": 3,
+            "strengths_keywords": [
+              "Nhiệt tình",
+              "Trách nhiệm"
+            ],
+            "weaknesses_keywords": [
+              "Không"
+            ],
+            "specific_feedback": "Phối hợp làm việc nhóm rất hiệu quả."
+          }
+        ]
+      }
+    }
+  ]
+}
