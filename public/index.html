@@ -248,13 +248,13 @@
       </div>
     </main>
 
-    <!-- RIGHT PANEL: LIVE JSON EDITOR, cURL EXPORTER & RESPONSE VIEW -->
+    <!-- RIGHT PANEL: API EXECUTION & RESPONSE INSPECTOR HUB -->
     <aside class="panel preview-panel">
       <!-- HEADER TOOLS -->
       <div class="panel-header flex-between">
-        <div class="view-tabs">
-          <button class="view-tab-btn active" data-view="json-view">📄 Live Payload JSON</button>
-          <button class="view-tab-btn" data-view="curl-view">💻 Standard cURL Command</button>
+        <div class="panel-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span class="inspector-heading-text">TRUNG TÂM THỰC THI & PHẢN HỒI API (RESPONSE INSPECTOR)</span>
         </div>
         
         <!-- MAIN EXECUTE BUTTON -->
@@ -264,45 +264,26 @@
         </button>
       </div>
 
-      <!-- VIEWER CONTAINERS -->
-      <div class="viewer-body">
-
-        <!-- JSON EDITOR VIEW -->
+      <!-- HIDDEN VIEWER CONTAINERS (PRESERVED IN DOM FOR JS BACKEND DATA SYNC) -->
+      <div class="viewer-body hidden" style="display:none !important;">
         <div id="json-view" class="view-pane active">
-          <div class="code-toolbar flex-between mb-2">
-            <span class="code-lang">JSON (Auto-Validated)</span>
-            <div class="code-actions">
-              <button id="btnFormatJson" class="btn btn-ghost btn-xs">Format JSON</button>
-              <button id="btnCopyJson" class="btn btn-ghost btn-xs">Copy JSON</button>
-            </div>
-          </div>
           <textarea id="jsonEditor" class="code-textarea font-mono" spellcheck="false"></textarea>
           <div id="jsonSyntaxStatus" class="syntax-status valid">✓ Format JSON Hợp Lệ</div>
         </div>
-
-        <!-- cURL COMMAND VIEW -->
         <div id="curl-view" class="view-pane">
-          <div class="code-toolbar flex-between mb-2">
-            <span class="code-lang">cURL Bash Command</span>
-            <button id="btnCopyCurl" class="btn btn-ghost btn-xs">Copy cURL Command</button>
-          </div>
           <pre id="curlDisplay" class="code-block font-mono"></pre>
         </div>
-
       </div>
 
-      <!-- BOTTOM PANEL: API RESPONSE INSPECTOR -->
-      <div id="responseInspector" class="response-inspector">
+      <!-- FULL HEIGHT PANEL: API RESPONSE INSPECTOR -->
+      <div id="responseInspector" class="response-inspector full-height">
         <div class="inspector-header flex-between">
-          <div class="inspector-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            <span class="inspector-heading-text">KẾT QUẢ PHẢN HỒI TỪ API (RESPONSE INSPECTOR)</span>
+          <div class="response-metrics-left">
+            <span id="resStatusBadge" class="badge badge-neutral">Ready</span>
+            <span id="resLatency" class="metric-tag">-- ms</span>
           </div>
           <div class="response-metrics">
             <button id="btnExportExcel" class="btn btn-secondary btn-xs btn-excel-green" title="Xuất dữ liệu & Kết quả ra file Excel .xlsx">📊 Xuất Excel</button>
-            <button id="btnToggleExpandResponse" class="btn btn-secondary btn-xs" title="Phóng to / Thu nhỏ vùng xem kết quả">↕ Phóng To / Thu Nhỏ</button>
-            <span id="resStatusBadge" class="badge badge-neutral">Ready</span>
-            <span id="resLatency" class="metric-tag">-- ms</span>
           </div>
         </div>
 

@@ -433,28 +433,17 @@ label {
 }
 
 /* --------------------------------------------------------------------------
-   RESPONSE INSPECTOR (EXPANDED & PROMINENT)
+   RESPONSE INSPECTOR (100% FULL HEIGHT RIGHT PANEL)
    -------------------------------------------------------------------------- */
 .response-inspector {
-  height: 520px;
-  max-height: 75vh;
-  border-top: 2px solid var(--primary);
+  flex: 1;
+  height: 100%;
+  max-height: 100%;
+  border-top: none;
   background-color: #0c1017;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.response-inspector.expanded {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 100% !important;
-  max-height: 100% !important;
-  z-index: 20;
 }
 
 .inspector-header {
