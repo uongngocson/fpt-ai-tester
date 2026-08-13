@@ -725,4 +725,112 @@ document.addEventListener('DOMContentLoaded', () => {
       }, null, 2);
     }
   }
+
+  // --- TOGGLE EXPAND RESPONSE INSPECTOR ---
+  const responseInspector = document.getElementById('responseInspector');
+  const btnToggleExpandResponse = document.getElementById('btnToggleExpandResponse');
+  const btnExportExcel = document.getElementById('btnExportExcel');
+
+  if (btnToggleExpandResponse && responseInspector) {
+    btnToggleExpandResponse.addEventListener('click', () => {
+      responseInspector.classList.toggle('expanded');
+      const isExpanded = responseInspector.classList.contains('expanded');
+      btnToggleExpandResponse.textContent = isExpanded ? '🗗 Thu Nhỏ Vùng Kết Quả' : '↕ Phóng To / Thu Nhỏ';
+    });
+  }
+
+  if (btnExportExcel) {
+    btnExportExcel.addEventListener('click', exportToExcel);
+  }
+
+  // --- EXPORT TO EXCEL ---
+  function exportToExcel() {
+    if (typeof XLSX === 'undefined') {
+      alert('Đang tải thư viện XLSX... Vui lòng thử lại sau giây lát.');
+      return;
+    }
+
+    try {
+      const wb = XLSX.utils.book_new();
+
+      // 1. Employee Info Sheet
+      const empData = [
+        { "Trường Thông Tin": "Họ và Tên", "Giá Trị": state.payload.employee_info.full_name },
+        { "Trường Thông Tin": "FPT Email", "Giá Trị": state.payload.employee_info.fpt_email },
+        { "Trường Thông Tin": "Chi Nhánh / Đơn Vị", "Giá Trị": state.payload.employee_info.branch },
+        { "Trường Thông Tin": "Kỳ Đánh Giá", "Giá Trị": state.payload.employee_info.evaluation_period }
+      ];
+      const wsEmp = XLSX.utils.json_to_sheet(empData);
+      XLSX.utils.book_append_sheet(wb, wsEmp, "Thông_Tin_Nhân_Viên");
+
+      // 2. Competency Benchmark Sheet
+      const compData = [
+        { "Mục": "Nhóm Năng Lực", "Chi Tiết": state.payload.competency_benchmark.competency_group },
+        { "Mục": "Tên Năng Lực", "Chi Tiết": state.payload.competency_benchmark.competency_name },
+        { "Mục": "Level Mẫu Benchmark", "Chi Tiết": state.payload.competency_benchmark.benchmark_level }
+      ];
+      const wsComp = XLSX.utils.json_to_sheet(compData);
+      XLSX.utils.book_append_sheet(wb, wsComp, "Khung_Năng_Lực");
+
+      // 3. Behaviour Indicators Sheet
+      const indicators = (state.payload.competency_benchmark.behaviour_indicator || []).map(i => ({
+        "Level": i.level,
+        "Mô Tả Chỉ Số Hành Vi": i.description
+      }));
+      const wsInd = XLSX.utils.json_to_sheet(indicators.length ? indicators : [{ "Level": "", "Mô Tả": "" }]);
+      XLSX.utils.book_append_sheet(wb, wsInd, "Chỉ_Số_Hành_Vi");
+
+      // 4. CBI Agent Data Sheet
+      const cbiItems = (state.payload.cbi_agent_data || []).map(c => ({
+        "Group ID": c.competency_group_id,
+        "Name ID": c.competency_name_id,
+        "Level": c.level,
+        "Score": c.score,
+        "Tóm Tắt Tín Hiệu": c.signal_summary,
+        "Phân Tích": c.standard_breakdown,
+        "Phản Hồi": c.feedback
+      }));
+      const wsCbi = XLSX.utils.json_to_sheet(cbiItems.length ? cbiItems : [{ "Group ID": "", "Feedback": "" }]);
+      XLSX.utils.book_append_sheet(wb, wsCbi, "CBI_Agent_Data");
+
+      // 5. Manager & Peer Reviews Sheet
+      const mgrData = [
+        {
+          "Loại Đánh Giá": "Quản Lý (Manager)",
+          "Email": state.payload.manager_review.manager_email,
+          "Mức Đánh Giá": state.payload.manager_review.evaluated_level,
+          "Điểm Mạnh Keywords": (state.payload.manager_review.strengths_keywords || []).join(', '),
+          "Điểm Yếu Keywords": (state.payload.manager_review.weaknesses_keywords || []).join(', '),
+          "Ý Kiến Phản Hồi": state.payload.manager_review.specific_feedback
+        }
+      ];
+
+      (state.payload.peer_reviews || []).forEach((p, idx) => {
+        mgrData.push({
+          "Loại Đánh Giá": `Đồng Nghiệp #${idx + 1}`,
+          "Email": p.peer_email,
+          "Mức Đánh Giá": p.evaluated_level,
+          "Điểm Mạnh Keywords": (p.strengths_keywords || []).join(', '),
+          "Điểm Yếu Keywords": (p.weaknesses_keywords || []).join(', '),
+          "Ý Kiến Phản Hồi": p.specific_feedback
+        });
+      });
+
+      const wsReviews = XLSX.utils.json_to_sheet(mgrData);
+      XLSX.utils.book_append_sheet(wb, wsReviews, "Đánh_Giá_Manager_Peer");
+
+      // 6. Response Output Sheet
+      const responseText = responseDisplay.textContent || '';
+      const wsRes = XLSX.utils.json_to_sheet([
+        { "Nội Dung Phản Hồi API IDP": responseText }
+      ]);
+      XLSX.utils.book_append_sheet(wb, wsRes, "Kết_Quả_API_IDP");
+
+      const filename = `IP_Project_IDP_Report_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      XLSX.writeFile(wb, filename);
+      alert(`Đã xuất file Excel thành công: ${filename}`);
+    } catch (err) {
+      alert('Lỗi xuất Excel: ' + err.message);
+    }
+  }
 });
