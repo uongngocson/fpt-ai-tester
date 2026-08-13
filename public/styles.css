@@ -433,7 +433,7 @@ label {
 }
 
 /* --------------------------------------------------------------------------
-   RESPONSE INSPECTOR (100% FULL HEIGHT RIGHT PANEL)
+   RESPONSE INSPECTOR (EXPANDED & PROMINENT)
    -------------------------------------------------------------------------- */
 .response-inspector {
   flex: 1;
@@ -444,6 +444,24 @@ label {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.response-inspector.flex-1-full {
+  flex: 1;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+.response-inspector.expanded {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100% !important;
+  max-height: 100% !important;
+  z-index: 20;
 }
 
 .inspector-header {
