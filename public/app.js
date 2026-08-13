@@ -116,6 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const excelFileInput = document.getElementById('excelFileInput');
   const candidateSelectGroup = document.getElementById('candidateSelectGroup');
   const candidateSelect = document.getElementById('candidateSelect');
+  const multiCandidateCard = document.getElementById('multiCandidateCard');
+  const candidateCountBadge = document.getElementById('candidateCountBadge');
+  const candidatePillList = document.getElementById('candidatePillList');
+  const btnBatchExecuteApi = document.getElementById('btnBatchExecuteApi');
   const btnBlankForm = document.getElementById('btnBlankForm');
   const btnResetForm = document.getElementById('btnResetForm');
   
@@ -1320,9 +1324,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         state.excelParsedCandidates = candidateMap;
-
-        // Populate Candidate Selector
         const emails = Object.keys(candidateMap);
+
+        // Populate Candidate Selector & Pills
         candidateSelect.innerHTML = '';
         emails.forEach(email => {
           const emp = candidateMap[email];
@@ -1333,23 +1337,104 @@ document.addEventListener('DOMContentLoaded', () => {
           candidateSelect.appendChild(opt);
         });
 
-        if (emails.length > 1) {
+        if (emails.length > 0) {
           candidateSelectGroup.classList.remove('hidden');
+          multiCandidateCard.classList.remove('hidden');
+          candidateCountBadge.textContent = `👥 Phát hiện ${emails.length} Nhân viên từ Excel`;
+          renderCandidatePills(emails, emails[0]);
         } else {
           candidateSelectGroup.classList.add('hidden');
+          multiCandidateCard.classList.add('hidden');
         }
 
-        // Active selected candidate
+        // Active first selected candidate
         const firstEmail = emails[0];
         state.payload = JSON.parse(JSON.stringify(candidateMap[firstEmail]));
         populateFormFromState();
         updateOutputViewers();
 
-        alert(`✓ Đã nhập dữ liệu thành công từ file Excel "${file.name}"!\nHệ thống tìm thấy ${emails.length} nhân sự được đánh giá.`);
+        alert(`✓ Đã nhập thành công toàn bộ dữ liệu 3 Sheets từ tệp Excel "${file.name}"!\nPhát hiện ${emails.length} nhân sự: ${emails.map(e => candidateMap[e].employee_info.full_name || e).join(', ')}.`);
       } catch (err) {
         alert('Lỗi đọc dữ liệu tệp Excel: ' + err.message);
       }
     };
     reader.readAsArrayBuffer(file);
+  }
+
+  // --- RENDER CANDIDATE PILLS FOR MULTI-EMPLOYEE EXCEL ---
+  function renderCandidatePills(emails, activeEmail) {
+    if (!candidatePillList) return;
+    candidatePillList.innerHTML = '';
+
+    emails.forEach((email, idx) => {
+      const cand = state.excelParsedCandidates[email];
+      const name = cand.employee_info.full_name || `Nhân viên #${idx + 1}`;
+      const branch = cand.employee_info.branch ? `[${cand.employee_info.branch}]` : '';
+      const peerCount = (cand.peer_reviews || []).length;
+      const hasMgr = cand.manager_review && cand.manager_review.manager_email;
+
+      const pill = document.createElement('div');
+      pill.className = `candidate-pill ${email.toLowerCase() === activeEmail.toLowerCase() ? 'active' : ''}`;
+      pill.innerHTML = `
+        <span>👤 <strong>${name}</strong> <small style="opacity:0.8;">(${email})</small></span>
+        <span class="pill-badge">${branch} ${hasMgr ? '• 👔 Cấp trên' : ''} ${peerCount > 0 ? `• 👥 ${peerCount} Đồng nghiệp` : ''}</span>
+      `;
+
+      pill.addEventListener('click', () => {
+        // Set active styling
+        document.querySelectorAll('.candidate-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+
+        // Update select value & state
+        if (candidateSelect) candidateSelect.value = email;
+        state.payload = JSON.parse(JSON.stringify(state.excelParsedCandidates[email]));
+        populateFormFromState();
+        updateOutputViewers();
+      });
+
+      candidatePillList.appendChild(pill);
+    });
+  }
+
+  // --- BATCH API EXECUTOR FOR ALL CANDIDATES ---
+  if (btnBatchExecuteApi) {
+    btnBatchExecuteApi.addEventListener('click', async () => {
+      if (!state.excelParsedCandidates || Object.keys(state.excelParsedCandidates).length === 0) {
+        alert('Vui lòng nhập file Excel có chứa danh sách nhân viên trước khi thực hiện batch API.');
+        return;
+      }
+
+      const emails = Object.keys(state.excelParsedCandidates);
+      if (!confirm(`Xác nhận thực thi API Generate IDP cho tất cả ${emails.length} nhân viên trong danh sách?`)) {
+        return;
+      }
+
+      btnBatchExecuteApi.disabled = true;
+      btnBatchExecuteApi.innerHTML = `⏳ Đang gửi API Batch (0/${emails.length})...`;
+
+      for (let i = 0; i < emails.length; i++) {
+        const email = emails[i];
+        const candPayload = state.excelParsedCandidates[email];
+        const name = candPayload.employee_info.full_name || email;
+        btnBatchExecuteApi.innerHTML = `⏳ Đang gửi API Batch (${i + 1}/${emails.length}): ${name}...`;
+
+        // Switch active candidate state
+        state.payload = JSON.parse(JSON.stringify(candPayload));
+        populateFormFromState();
+        updateOutputViewers();
+
+        // Trigger API execute
+        const btnExecuteApi = document.getElementById('btnExecuteApi');
+        if (btnExecuteApi) {
+          btnExecuteApi.click();
+          // Wait 1.5 seconds between API requests
+          await new Promise(r => setTimeout(r, 1500));
+        }
+      }
+
+      btnBatchExecuteApi.disabled = false;
+      btnBatchExecuteApi.innerHTML = `⚡ Gửi API Batch Cho Tất Cả Nhân Viên`;
+      alert(`✓ Đã hoàn tất thực thi API Generate IDP cho tất cả ${emails.length} nhân viên!`);
+    });
   }
 });

@@ -80,6 +80,20 @@
         </div>
       </div>
 
+      <!-- EXCEL MULTI-CANDIDATE MANAGEMENT BAR -->
+      <div id="multiCandidateCard" class="card candidate-manager-card hidden">
+        <div class="flex-between mb-2">
+          <div class="flex-align gap-2">
+            <span class="badge badge-primary" id="candidateCountBadge">👥 Phát hiện 2 Nhân viên từ Excel</span>
+            <span class="text-sub font-sm">Bấm chọn nhân sự để xem & chỉnh sửa toàn bộ dữ liệu Input:</span>
+          </div>
+          <button id="btnBatchExecuteApi" class="btn btn-primary btn-sm btn-excel-green" title="Tự động gọi API Generate IDP tuần tự cho tất cả nhân sự trong file Excel">
+            ⚡ Gửi API Batch Cho Tất Cả Nhân Viên
+          </button>
+        </div>
+        <div id="candidatePillList" class="candidate-pill-list"></div>
+      </div>
+
       <!-- NAVIGATION STEPPER TABS -->
       <div class="stepper-tabs">
         <button class="tab-btn active" data-tab="tab-auth">1. Token Hub</button>
