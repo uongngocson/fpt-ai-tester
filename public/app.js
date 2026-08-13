@@ -743,7 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnExportExcel.addEventListener('click', exportToExcel);
   }
 
-  // --- EXPORT TO EXCEL ---
+  // --- EXPORT TO EXCEL (1 SINGLE SHEET FULL DATA) ---
   function exportToExcel() {
     if (typeof XLSX === 'undefined') {
       alert('Đang tải thư viện XLSX... Vui lòng thử lại sau giây lát.');
@@ -752,83 +752,115 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const wb = XLSX.utils.book_new();
+      const rows = [];
 
-      // 1. Employee Info Sheet
-      const empData = [
-        { "Trường Thông Tin": "Họ và Tên", "Giá Trị": state.payload.employee_info.full_name },
-        { "Trường Thông Tin": "FPT Email", "Giá Trị": state.payload.employee_info.fpt_email },
-        { "Trường Thông Tin": "Chi Nhánh / Đơn Vị", "Giá Trị": state.payload.employee_info.branch },
-        { "Trường Thông Tin": "Kỳ Đánh Giá", "Giá Trị": state.payload.employee_info.evaluation_period }
-      ];
-      const wsEmp = XLSX.utils.json_to_sheet(empData);
-      XLSX.utils.book_append_sheet(wb, wsEmp, "Thông_Tin_Nhân_Viên");
+      // HEADER BANNER
+      rows.push(["BÁO CÁO KẾT QUẢ ĐÁNH GIÁ IP PROJECT -> GENERATE IDP"]);
+      rows.push(["Thời gian xuất báo cáo: " + new Date().toLocaleString()]);
+      rows.push([]);
 
-      // 2. Competency Benchmark Sheet
-      const compData = [
-        { "Mục": "Nhóm Năng Lực", "Chi Tiết": state.payload.competency_benchmark.competency_group },
-        { "Mục": "Tên Năng Lực", "Chi Tiết": state.payload.competency_benchmark.competency_name },
-        { "Mục": "Level Mẫu Benchmark", "Chi Tiết": state.payload.competency_benchmark.benchmark_level }
-      ];
-      const wsComp = XLSX.utils.json_to_sheet(compData);
-      XLSX.utils.book_append_sheet(wb, wsComp, "Khung_Năng_Lực");
+      // SECTION 1: THÔNG TIN NHÂN VIÊN
+      rows.push(["=== 1. THÔNG TIN NHÂN VIÊN (EMPLOYEE INFO) ==="]);
+      rows.push(["Họ và Tên:", state.payload.employee_info.full_name || '']);
+      rows.push(["FPT Email:", state.payload.employee_info.fpt_email || '']);
+      rows.push(["Chi Nhánh / Đơn Vị:", state.payload.employee_info.branch || '']);
+      rows.push(["Kỳ Đánh Giá:", state.payload.employee_info.evaluation_period || '']);
+      rows.push([]);
 
-      // 3. Behaviour Indicators Sheet
-      const indicators = (state.payload.competency_benchmark.behaviour_indicator || []).map(i => ({
-        "Level": i.level,
-        "Mô Tả Chỉ Số Hành Vi": i.description
-      }));
-      const wsInd = XLSX.utils.json_to_sheet(indicators.length ? indicators : [{ "Level": "", "Mô Tả": "" }]);
-      XLSX.utils.book_append_sheet(wb, wsInd, "Chỉ_Số_Hành_Vi");
+      // SECTION 2: KHUNG NĂNG LỰC BENCHMARK
+      rows.push(["=== 2. KHUNG NĂNG LỰC BENCHMARK (COMPETENCY BENCHMARK) ==="]);
+      rows.push(["Nhóm Năng Lực:", state.payload.competency_benchmark.competency_group || '']);
+      rows.push(["Tên Năng Lực:", state.payload.competency_benchmark.competency_name || '']);
+      rows.push(["Benchmark Level:", state.payload.competency_benchmark.benchmark_level || 1]);
+      rows.push([]);
 
-      // 4. CBI Agent Data Sheet
-      const cbiItems = (state.payload.cbi_agent_data || []).map(c => ({
-        "Group ID": c.competency_group_id,
-        "Name ID": c.competency_name_id,
-        "Level": c.level,
-        "Score": c.score,
-        "Tóm Tắt Tín Hiệu": c.signal_summary,
-        "Phân Tích": c.standard_breakdown,
-        "Phản Hồi": c.feedback
-      }));
-      const wsCbi = XLSX.utils.json_to_sheet(cbiItems.length ? cbiItems : [{ "Group ID": "", "Feedback": "" }]);
-      XLSX.utils.book_append_sheet(wb, wsCbi, "CBI_Agent_Data");
-
-      // 5. Manager & Peer Reviews Sheet
-      const mgrData = [
-        {
-          "Loại Đánh Giá": "Quản Lý (Manager)",
-          "Email": state.payload.manager_review.manager_email,
-          "Mức Đánh Giá": state.payload.manager_review.evaluated_level,
-          "Điểm Mạnh Keywords": (state.payload.manager_review.strengths_keywords || []).join(', '),
-          "Điểm Yếu Keywords": (state.payload.manager_review.weaknesses_keywords || []).join(', '),
-          "Ý Kiến Phản Hồi": state.payload.manager_review.specific_feedback
-        }
-      ];
-
-      (state.payload.peer_reviews || []).forEach((p, idx) => {
-        mgrData.push({
-          "Loại Đánh Giá": `Đồng Nghiệp #${idx + 1}`,
-          "Email": p.peer_email,
-          "Mức Đánh Giá": p.evaluated_level,
-          "Điểm Mạnh Keywords": (p.strengths_keywords || []).join(', '),
-          "Điểm Yếu Keywords": (p.weaknesses_keywords || []).join(', '),
-          "Ý Kiến Phản Hồi": p.specific_feedback
-        });
+      // SECTION 3: CHỈ SỐ HÀNH VI
+      rows.push(["=== 3. CHỈ SỐ HÀNH VI (BEHAVIOUR INDICATORS) ==="]);
+      rows.push(["Cấp (Level)", "Mô Tả Chỉ Số Hành Vi"]);
+      (state.payload.competency_benchmark.behaviour_indicator || []).forEach(ind => {
+        rows.push([`Level ${ind.level}`, ind.description || '']);
       });
+      rows.push([]);
 
-      const wsReviews = XLSX.utils.json_to_sheet(mgrData);
-      XLSX.utils.book_append_sheet(wb, wsReviews, "Đánh_Giá_Manager_Peer");
+      // SECTION 4: TÍN HIỆU ĐÁNH GIÁ
+      rows.push(["=== 4. TÍN HIỆU ĐÁNH GIÁ (SIGNALS) ==="]);
+      rows.push(["Cấp (Level)", "Các Chỉ Báo / Signals"]);
+      (state.payload.competency_benchmark.signals || []).forEach(sig => {
+        rows.push([`Level ${sig.level}`, (sig.indicators || []).join('\n')]);
+      });
+      rows.push([]);
 
-      // 6. Response Output Sheet
-      const responseText = responseDisplay.textContent || '';
-      const wsRes = XLSX.utils.json_to_sheet([
-        { "Nội Dung Phản Hồi API IDP": responseText }
+      // SECTION 5: DỮ LIỆU CBI AGENT
+      rows.push(["=== 5. DỮ LIỆU CBI AGENT (CBI AGENT DATA) ==="]);
+      rows.push(["Group ID", "Name ID", "Level", "Score", "Tóm Tắt Tín Hiệu", "Phân Tích Chi Tiết", "Phản Hồi / Feedback"]);
+      (state.payload.cbi_agent_data || []).forEach(cbi => {
+        rows.push([
+          cbi.competency_group_id || '',
+          cbi.competency_name_id || '',
+          cbi.level || '',
+          cbi.score || '',
+          cbi.signal_summary || '',
+          cbi.standard_breakdown || '',
+          cbi.feedback || ''
+        ]);
+      });
+      rows.push([]);
+
+      // SECTION 6: ĐÁNH GIÁ QUẢN LÝ & ĐỒNG NGHIỆP
+      rows.push(["=== 6. ĐÁNH GIÁ QUẢN LÝ & ĐỒNG NGHIỆP (REVIEWS) ==="]);
+      rows.push(["Loại Đánh Giá", "Email", "Mức Đánh Giá", "Từ Khóa Điểm Mạnh", "Từ Khóa Điểm Cần Cải Thiện", "Ý Kiến Phản Hồi Cụ Thể"]);
+      
+      const mgr = state.payload.manager_review;
+      rows.push([
+        "Quản Lý (Manager)",
+        mgr.manager_email || '',
+        mgr.evaluated_level || 1,
+        (mgr.strengths_keywords || []).join(', '),
+        (mgr.weaknesses_keywords || []).join(', '),
+        mgr.specific_feedback || ''
       ]);
-      XLSX.utils.book_append_sheet(wb, wsRes, "Kết_Quả_API_IDP");
 
-      const filename = `IP_Project_IDP_Report_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      (state.payload.peer_reviews || []).forEach((peer, idx) => {
+        rows.push([
+          `Đồng Nghiệp #${idx + 1}`,
+          peer.peer_email || '',
+          peer.evaluated_level || 1,
+          (peer.strengths_keywords || []).join(', '),
+          (peer.weaknesses_keywords || []).join(', '),
+          peer.specific_feedback || ''
+        ]);
+      });
+      rows.push([]);
+
+      // SECTION 7: KẾT QUẢ PHẢN HỒI AI GENERATE IDP
+      rows.push(["=== 7. KẾT QUẢ PHẢN HỒI THỰC TẾ TỪ API GENERATE IDP (RESPONSE INSPECTOR) ==="]);
+      const status = document.getElementById('resStatusBadge')?.textContent || 'N/A';
+      const latency = document.getElementById('resLatency')?.textContent || 'N/A';
+      const responseText = document.getElementById('responseDisplay')?.textContent || '';
+      
+      rows.push(["Trạng Thái API:", status]);
+      rows.push(["Độ Trễ Latency:", latency]);
+      rows.push(["Chi Tiết Phản Hồi AI IDP:", responseText]);
+
+      // BUILD WORKSHEET & APPEND TO WORKBOOK (1 SINGLE SHEET)
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+
+      // Auto Column Widths
+      ws['!cols'] = [
+        { wch: 30 },
+        { wch: 30 },
+        { wch: 15 },
+        { wch: 25 },
+        { wch: 35 },
+        { wch: 40 },
+        { wch: 45 }
+      ];
+
+      XLSX.utils.book_append_sheet(wb, ws, "BÁO_CÁO_IDP_TỔNG_HỢP");
+
+      const filename = `Bao_Cao_IDP_Tong_Hop_${new Date().toISOString().slice(0, 10)}.xlsx`;
       XLSX.writeFile(wb, filename);
-      alert(`Đã xuất file Excel thành công: ${filename}`);
+      alert(`Đã xuất file Excel tổng hợp 1 Sheet thành công: ${filename}`);
     } catch (err) {
       alert('Lỗi xuất Excel: ' + err.message);
     }
