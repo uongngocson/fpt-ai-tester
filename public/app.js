@@ -111,8 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const envSelect = document.getElementById('envSelect');
   const customDomainInput = document.getElementById('customDomainInput');
   const presetSelect = document.getElementById('presetSelect');
+  const btnDownloadTemplate = document.getElementById('btnDownloadTemplate');
   const btnImportExcel = document.getElementById('btnImportExcel');
   const excelFileInput = document.getElementById('excelFileInput');
+  const candidateSelectGroup = document.getElementById('candidateSelectGroup');
+  const candidateSelect = document.getElementById('candidateSelect');
   const btnBlankForm = document.getElementById('btnBlankForm');
   const btnResetForm = document.getElementById('btnResetForm');
   
@@ -240,6 +243,11 @@ document.addEventListener('DOMContentLoaded', () => {
       updateOutputViewers();
     });
 
+    // Download Excel Template Button
+    if (btnDownloadTemplate) {
+      btnDownloadTemplate.addEventListener('click', downloadExcelTemplate);
+    }
+
     // Excel Import Button & Input
     if (btnImportExcel && excelFileInput) {
       btnImportExcel.addEventListener('click', () => {
@@ -250,6 +258,18 @@ document.addEventListener('DOMContentLoaded', () => {
       excelFileInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
           handleExcelImport(e.target.files[0]);
+        }
+      });
+    }
+
+    // Candidate Select (When multi-employee Excel is loaded)
+    if (candidateSelect) {
+      candidateSelect.addEventListener('change', () => {
+        const selectedEmail = candidateSelect.value;
+        if (state.excelParsedCandidates && state.excelParsedCandidates[selectedEmail]) {
+          state.payload = JSON.parse(JSON.stringify(state.excelParsedCandidates[selectedEmail]));
+          populateFormFromState();
+          updateOutputViewers();
         }
       });
     }
@@ -882,7 +902,144 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- IMPORT FROM EXCEL FILE ---
+  // --- DOWNLOAD EXCEL TEMPLATE (3 SHEETS STANDARD) ---
+  function downloadExcelTemplate() {
+    if (typeof XLSX === 'undefined') {
+      alert('Đang tải thư viện XLSX... Vui lòng thử lại sau giây lát.');
+      return;
+    }
+
+    try {
+      const wb = XLSX.utils.book_new();
+
+      // Sheet 1: CBI (Template structure)
+      const cbiRows = [
+        ["Link tài liệu API", "IP_Project"],
+        ["input", "Test"],
+        ["employee_info"],
+        ["employee_info.full_name", "Nguyễn Văn A"],
+        ["employee_info.fpt_email", "Anv@fpt.com"],
+        ["employee_info.branch", "FTELAU"],
+        ["employee_info.evaluation_period", "T7/2026"],
+        ["competency_benchmark"],
+        ["competency_benchmark.competency_group", "Giá trị cốt lõi"],
+        ["competency_benchmark.competency_name", "Kỷ luật và thực thi nhiệm vụ"],
+        ["competency_benchmark.benchmark_level", 3],
+        ["competency_benchmark.behaviour_indicator", "Level 1\tSẵn sàng nhận mọi nhiệm vụ, tuân thủ nguyên tắc \"6 rõ\", tập trung thực thi và báo cáo kịp thời. \nLevel 2\tTự giải quyết trở ngại phát sinh, đồng thời tích cực phối hợp với cá nhân, đơn vị liên quan đảm bảo hoàn thành tốt nhiệm vụ.\nLevel 3\tChủ động nhận nhiệm vụ khó, huấn luyện đội ngũ về tư duy chịu trách nhiệm đến cùng; có phương pháp kiểm soát tiến độ và đề xuất cải tiến nhằm nâng cao kỷ luật thực thi tại đơn vị."],
+        ["competency_benchmark.signals", "Level 1: \n- Đề cập đến việc nhận ít nhất một nhiệm vụ cụ thể\n- Liệt kê được ít nhất 3 trong 6 yếu tố trong nguyên tắc 6 rõ\nLevel 2:\n- Tự mình tìm cách giải quyết một trở ngại cụ thể phát sinh\nLevel 3:\n- Xung phong nhận nhiệm vụ khó hoặc thách thức tại đơn vị"],
+        ["cbi_agent_data"],
+        ["cbi_agent_data.competency_group_id", "1"],
+        ["cbi_agent_data.competency_name_id", "1"],
+        ["cbi_agent_data.level", "2"],
+        ["cbi_agent_data.score", "5/10"],
+        ["cbi_agent_data.signal_summary", "5/10 Đạt Level 2."],
+        ["cbi_agent_data.standard_breakdown", "Ứng viên đạt chỉ số hành vi Level 2."],
+        ["cbi_agent_data.feedback", "Điểm tốt: Kỷ luật cao. Điểm cần cải thiện: Thêm sáng tạo."],
+        ["manager_review"],
+        ["manager_review.manager_email", "Manager@fpt.com"],
+        ["manager_review.evaluated_level", 3],
+        ["manager_review.strengths_keywords", "Kỷ luật, Trách nhiệm"],
+        ["manager_review.weaknesses_keywords", "Chưa có"],
+        ["manager_review.specific_feedback", "Hoàn thành xuất sắc nhiệm vụ"],
+        ["peer_reviews"],
+        ["peer_reviews.peer_email", "Peer1@fpt.com"],
+        ["peer_reviews.evaluated_level", 3],
+        ["peer_reviews.strengths_keywords", "Nhiệt tình, Đồng đội"],
+        ["peer_reviews.weaknesses_keywords", "Không"],
+        ["peer_reviews.specific_feedback", "Phối hợp làm việc nhóm rất tốt"]
+      ];
+      const ws1 = XLSX.utils.aoa_to_sheet(cbiRows);
+      ws1['!cols'] = [{ wch: 45 }, { wch: 80 }];
+      XLSX.utils.book_append_sheet(wb, ws1, "CBI");
+
+      // Sheet 2: 360_cấp trên
+      const mgrRows = [
+        [
+          "Dấu thời gian",
+          "Địa chỉ email",
+          "Email FPT của Anh/Chị?",
+          "Anh/Chị thuộc Chi nhánh:",
+          "Kỳ đánh giá",
+          "Email Nhân sự được đánh giá",
+          "1a. Evaluated Level",
+          "1b. Strengths Keywords",
+          "1c. Specific Feedback"
+        ],
+        [
+          "2026-07-30 20:30:04",
+          "trunghd2@fpt.com",
+          "TrungHD2@FPT.COM",
+          "VTU",
+          "Tháng 7/2026",
+          "DungNV22@FPT.COM",
+          1,
+          "Sẵn sàng nhận bất kỳ nhiệm vụ được giao nào, Chủ động tìm cách giải quyết trở ngại phát sinh, Phối hợp với cá nhân/đơn vị liên quan",
+          "Cần ứng dụng 6 rõ và sáng tạo"
+        ],
+        [
+          "2026-08-01 16:46:16",
+          "truonght@fpt.com",
+          "TruongHT@FPT.COM",
+          "LDG",
+          "Tháng 7/2026",
+          "tangnx2@fpt.com",
+          2,
+          "Sẵn sàng nhận nhiệm vụ, Mọi nhiệm vụ đã nhận được thực thi và báo cáo theo nguyên tắc 6 rõ",
+          "Cần cải thiện phương pháp kiểm soát tiến độ công việc"
+        ]
+      ];
+      const ws2 = XLSX.utils.aoa_to_sheet(mgrRows);
+      ws2['!cols'] = [{ wch: 20 }, { wch: 22 }, { wch: 22 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 50 }, { wch: 40 }];
+      XLSX.utils.book_append_sheet(wb, ws2, "360_cấp trên");
+
+      // Sheet 3: 360_Cấp dưới
+      const peerRows = [
+        [
+          "Dấu thời gian",
+          "Địa chỉ email",
+          "Email FPT của Anh/Chị?",
+          "Anh/Chị thuộc Chi nhánh:",
+          "Kỳ đánh giá",
+          "Nhân sự được đánh giá - CBQL của Anh/Chị:",
+          "1a. Evaluated Level",
+          "1b. Strengths Keywords",
+          "1c. Specific Feedback"
+        ],
+        [
+          "2026-07-28 17:39:30",
+          "maitrucquynhvt@gmail.com",
+          "HoaMX@fpt.com",
+          "VTU",
+          "Tháng 7/2026",
+          "CaoCT@FPT.COM",
+          3,
+          "Sẵn sàng nhận bất kỳ nhiệm vụ được giao nào, Vận dụng nguyên tắc 6 rõ, Xung phong nhận nhiệm vụ khó",
+          "Năng lực kỷ luật nhận nhiệm vụ và thực thi tốt."
+        ],
+        [
+          "2026-07-28 18:30:26",
+          "vyntk7@fpt.com",
+          "VyNTK7@fpt.com",
+          "VTU",
+          "Tháng 7/2026",
+          "CaoCT@FPT.COM",
+          3,
+          "Sẵn sàng nhận bất kỳ nhiệm vụ được giao nào, Huấn luyện đội ngũ tư duy chịu trách nhiệm đến cùng",
+          "Nhân sự làm việc rất tuyệt vời"
+        ]
+      ];
+      const ws3 = XLSX.utils.aoa_to_sheet(peerRows);
+      ws3['!cols'] = [{ wch: 20 }, { wch: 25 }, { wch: 22 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 50 }, { wch: 40 }];
+      XLSX.utils.book_append_sheet(wb, ws3, "360_Cấp dưới");
+
+      const filename = `DNB_IDP_Mau_Chuan_3_Sheets.xlsx`;
+      XLSX.writeFile(wb, filename);
+    } catch (err) {
+      alert('Lỗi khi tải file Excel mẫu: ' + err.message);
+    }
+  }
+
+  // --- IMPORT FROM EXCEL FILE (3 SHEETS 100% FULL PARSER) ---
   function handleExcelImport(file) {
     if (typeof XLSX === 'undefined') {
       alert('Đang tải thư viện đọc file Excel... Vui lòng thử lại sau giây lát.');
@@ -894,128 +1051,172 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
-        
-        let sheetName = workbook.SheetNames.find(s => s.toLowerCase().includes('thông tin') || s.toLowerCase().includes('general') || s.toLowerCase().includes('idp')) || workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-        const importedPayload = {
-          employee_info: {
-            full_name: "",
-            fpt_email: "",
-            branch: "",
-            evaluation_period: ""
-          },
-          competency_benchmark: {
-            competency_group: "",
-            competency_name: "",
-            benchmark_level: 1,
-            behaviour_indicator: [],
-            signals: []
-          },
-          cbi_agent_data: [
-            {
-              competency_group_id: "1",
-              competency_name_id: "1",
-              level: "1",
-              score: "",
-              signal_summary: "",
-              standard_breakdown: "",
-              feedback: ""
-            }
-          ],
-          manager_review: {
-            manager_email: "",
-            evaluated_level: 1,
-            strengths_keywords: [],
-            weaknesses_keywords: [],
-            specific_feedback: ""
-          },
-          peer_reviews: [
-            {
-              peer_email: "",
-              evaluated_level: 1,
-              strengths_keywords: [],
-              weaknesses_keywords: [],
-              specific_feedback: ""
-            }
-          ]
+        // 1. Read Base CBI Sheet (Sheet 1)
+        let sheetCbiName = workbook.SheetNames.find(s => s.toLowerCase().includes('cbi') || s.toLowerCase().includes('thông tin') || s.toLowerCase().includes('general')) || workbook.SheetNames[0];
+        const wsCbi = workbook.Sheets[sheetCbiName];
+        const cbiJsonRows = XLSX.utils.sheet_to_json(wsCbi, { header: 1 });
+
+        const basePayload = {
+          employee_info: { full_name: "", fpt_email: "", branch: "", evaluation_period: "" },
+          competency_benchmark: { competency_group: "", competency_name: "", benchmark_level: 1, behaviour_indicator: [], signals: [] },
+          cbi_agent_data: [{ competency_group_id: "1", competency_name_id: "1", level: "1", score: "", signal_summary: "", standard_breakdown: "", feedback: "" }],
+          manager_review: { manager_email: "", evaluated_level: 1, strengths_keywords: [], weaknesses_keywords: [], specific_feedback: "" },
+          peer_reviews: [{ peer_email: "", evaluated_level: 1, strengths_keywords: [], weaknesses_keywords: [], specific_feedback: "" }]
         };
 
-        jsonRows.forEach(row => {
+        cbiJsonRows.forEach(row => {
           if (!row || row.length < 2) return;
           const k = String(row[0] || '').trim();
           const v = row[1] !== undefined && row[1] !== null ? String(row[1]).trim() : '';
 
           if (k.startsWith('employee_info.')) {
-            const field = k.replace('employee_info.', '');
-            importedPayload.employee_info[field] = v;
+            basePayload.employee_info[k.replace('employee_info.', '')] = v;
           } else if (k.startsWith('competency_benchmark.')) {
             const field = k.replace('competency_benchmark.', '');
             if (field === 'benchmark_level') {
-              importedPayload.competency_benchmark.benchmark_level = parseInt(v) || 1;
+              basePayload.competency_benchmark.benchmark_level = parseInt(v) || 1;
             } else if (field === 'behaviour_indicator' && v) {
-              const lines = v.split('\n');
-              lines.forEach(line => {
+              v.split('\n').forEach(line => {
                 const match = line.match(/Level\s*(\d+)[\t\s:]+(.*)/i);
                 if (match) {
-                  importedPayload.competency_benchmark.behaviour_indicator.push({
-                    level: parseInt(match[1]) || 1,
-                    description: match[2].trim()
-                  });
+                  basePayload.competency_benchmark.behaviour_indicator.push({ level: parseInt(match[1]) || 1, description: match[2].trim() });
                 }
               });
             } else if (field === 'signals' && v) {
               const blocks = v.split(/Level\s*(\d+)[\s:]*/i);
               for (let i = 1; i < blocks.length; i += 2) {
-                const lvl = parseInt(blocks[i]) || 1;
-                const content = blocks[i + 1] || '';
-                const indicators = content.split('\n').map(x => x.replace(/^-\s*/, '').trim()).filter(Boolean);
-                importedPayload.competency_benchmark.signals.push({
-                  level: lvl,
-                  indicators: indicators
+                basePayload.competency_benchmark.signals.push({
+                  level: parseInt(blocks[i]) || 1,
+                  indicators: (blocks[i + 1] || '').split('\n').map(x => x.replace(/^-\s*/, '').trim()).filter(Boolean)
                 });
               }
             } else {
-              importedPayload.competency_benchmark[field] = v;
+              basePayload.competency_benchmark[field] = v;
             }
           } else if (k.startsWith('cbi_agent_data.')) {
-            const field = k.replace('cbi_agent_data.', '');
-            importedPayload.cbi_agent_data[0][field] = v;
+            basePayload.cbi_agent_data[0][k.replace('cbi_agent_data.', '')] = v;
           } else if (k.startsWith('manager_review.')) {
             const field = k.replace('manager_review.', '');
-            if (field === 'evaluated_level') {
-              importedPayload.manager_review.evaluated_level = parseInt(v) || 1;
-            } else if (field.includes('keywords')) {
-              importedPayload.manager_review[field] = v.split(',').map(x => x.trim()).filter(Boolean);
-            } else {
-              importedPayload.manager_review[field] = v;
-            }
+            if (field === 'evaluated_level') basePayload.manager_review.evaluated_level = parseInt(v) || 1;
+            else if (field.includes('keywords')) basePayload.manager_review[field] = v.split(',').map(x => x.trim()).filter(Boolean);
+            else basePayload.manager_review[field] = v;
           } else if (k.startsWith('peer_reviews.')) {
             const field = k.replace('peer_reviews.', '');
-            if (field === 'evaluated_level') {
-              importedPayload.peer_reviews[0].evaluated_level = parseInt(v) || 1;
-            } else if (field.includes('keywords')) {
-              importedPayload.peer_reviews[0][field] = v.split(',').map(x => x.trim()).filter(Boolean);
-            } else {
-              importedPayload.peer_reviews[0][field] = v;
-            }
+            if (field === 'evaluated_level') basePayload.peer_reviews[0].evaluated_level = parseInt(v) || 1;
+            else if (field.includes('keywords')) basePayload.peer_reviews[0][field] = v.split(',').map(x => x.trim()).filter(Boolean);
+            else basePayload.peer_reviews[0][field] = v;
           }
         });
 
-        if (!importedPayload.competency_benchmark.behaviour_indicator.length) {
-          importedPayload.competency_benchmark.behaviour_indicator.push({ level: 1, description: "" });
-        }
-        if (!importedPayload.competency_benchmark.signals.length) {
-          importedPayload.competency_benchmark.signals.push({ level: 1, indicators: [""] });
+        // 2. Read Sheet 2: 360_cấp trên (Manager Reviews)
+        const parsedManagers = {};
+        const sheetMgrName = workbook.SheetNames.find(s => s.toLowerCase().includes('360_cấp trên') || s.toLowerCase().includes('cấp trên'));
+        if (sheetMgrName && workbook.Sheets[sheetMgrName]) {
+          const mgrRows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetMgrName], { header: 1 });
+          for (let r = 1; r < mgrRows.length; r++) {
+            const row = mgrRows[r];
+            if (!row || row.length < 6) continue;
+            const targetEmail = String(row[5] || '').trim();
+            const mgrEmail = String(row[2] || '').trim();
+            const level = parseInt(row[6]) || 1;
+            const strengths = String(row[7] || '').split(',').map(s => s.trim()).filter(Boolean);
+            const feedback = String(row[8] || '').trim();
+            if (targetEmail) {
+              parsedManagers[targetEmail.toLowerCase()] = {
+                manager_email: mgrEmail,
+                evaluated_level: level,
+                strengths_keywords: strengths,
+                weaknesses_keywords: [],
+                specific_feedback: feedback
+              };
+            }
+          }
         }
 
-        state.payload = importedPayload;
+        // 3. Read Sheet 3: 360_Cấp dưới (Peer Reviews)
+        const parsedPeers = {};
+        const sheetPeerName = workbook.SheetNames.find(s => s.toLowerCase().includes('360_cấp dưới') || s.toLowerCase().includes('cấp dưới'));
+        if (sheetPeerName && workbook.Sheets[sheetPeerName]) {
+          const peerRows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetPeerName], { header: 1 });
+          for (let r = 1; r < peerRows.length; r++) {
+            const row = peerRows[r];
+            if (!row || row.length < 6) continue;
+            const targetEmail = String(row[5] || '').trim();
+            const peerEmail = String(row[2] || '').trim();
+            const level = parseInt(row[6]) || 1;
+            const strengths = String(row[7] || '').split(',').map(s => s.trim()).filter(Boolean);
+            const feedback = String(row[8] || '').trim();
+            if (targetEmail) {
+              const key = targetEmail.toLowerCase();
+              if (!parsedPeers[key]) parsedPeers[key] = [];
+              parsedPeers[key].push({
+                peer_email: peerEmail,
+                evaluated_level: level,
+                strengths_keywords: strengths,
+                weaknesses_keywords: [],
+                specific_feedback: feedback
+              });
+            }
+          }
+        }
+
+        // Combine candidates
+        const candidateMap = {};
+
+        // Default base candidate
+        const defaultEmail = basePayload.employee_info.fpt_email || 'default@fpt.com';
+        candidateMap[defaultEmail.toLowerCase()] = JSON.parse(JSON.stringify(basePayload));
+
+        // Add employees from Sheet 2
+        Object.keys(parsedManagers).forEach(emailKey => {
+          if (!candidateMap[emailKey]) {
+            candidateMap[emailKey] = JSON.parse(JSON.stringify(basePayload));
+            candidateMap[emailKey].employee_info.full_name = emailKey.split('@')[0].toUpperCase();
+            candidateMap[emailKey].employee_info.fpt_email = emailKey;
+          }
+          candidateMap[emailKey].manager_review = parsedManagers[emailKey];
+        });
+
+        // Add employees from Sheet 3
+        Object.keys(parsedPeers).forEach(emailKey => {
+          if (!candidateMap[emailKey]) {
+            candidateMap[emailKey] = JSON.parse(JSON.stringify(basePayload));
+            candidateMap[emailKey].employee_info.full_name = emailKey.split('@')[0].toUpperCase();
+            candidateMap[emailKey].employee_info.fpt_email = emailKey;
+          }
+          candidateMap[emailKey].peer_reviews = parsedPeers[emailKey];
+        });
+
+        state.excelParsedCandidates = candidateMap;
+
+        // Populate Candidate Selector
+        const emails = Object.keys(candidateMap);
+        candidateSelect.innerHTML = '';
+        emails.forEach(email => {
+          const emp = candidateMap[email];
+          const name = emp.employee_info.full_name || email;
+          const opt = document.createElement('option');
+          opt.value = email;
+          opt.textContent = `${name} (${email})`;
+          candidateSelect.appendChild(opt);
+        });
+
+        if (emails.length > 1) {
+          candidateSelectGroup.classList.remove('hidden');
+        } else {
+          candidateSelectGroup.classList.add('hidden');
+        }
+
+        // Set first employee as active state
+        const firstEmail = emails[0];
+        state.payload = JSON.parse(JSON.stringify(candidateMap[firstEmail]));
         populateFormFromState();
         updateOutputViewers();
-        alert(`✓ Đã nhập dữ liệu thành công từ tệp Excel "${file.name}"!`);
+
+        alert(`✓ Đã đọc 100% dữ liệu từ 3 Sheets file Excel "${file.name}"!\nTìm thấy ${emails.length} nhân sự được đánh giá.`);
       } catch (err) {
-        alert('Lỗi đọc dữ liệu tệp Excel: ' + err.message);
+        alert('Lỗi đọc dữ liệu tệp Excel 3 Sheets: ' + err.message);
       }
     };
     reader.readAsArrayBuffer(file);

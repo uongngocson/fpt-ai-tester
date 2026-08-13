@@ -62,7 +62,15 @@
         </div>
         <div class="preset-controls">
           <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden">
+          <button id="btnDownloadTemplate" class="btn btn-secondary btn-sm" title="Tải file Excel mẫu chuẩn 3 Sheets (CBI, 360_cấp trên, 360_Cấp dưới)">📥 Tải Excel Mẫu</button>
           <button id="btnImportExcel" class="btn btn-secondary btn-sm btn-excel-green" title="Tải file Excel (vd: DNB_IDP.xlsx) để tự động nhập dữ liệu">📥 Nhập Excel</button>
+          
+          <!-- Dynamic Candidate Selector from Excel (Hidden by default) -->
+          <div id="candidateSelectGroup" class="candidate-picker hidden">
+            <label for="candidateSelect">Chọn Nhân Viên:</label>
+            <select id="candidateSelect" class="input-select-sm"></select>
+          </div>
+
           <button id="btnBlankForm" class="btn btn-secondary btn-sm" title="Tạo form sạch để tự nhập từ đầu">📝 Form Trống</button>
           <label for="presetSelect">Mẫu Nhanh:</label>
           <select id="presetSelect" class="input-select-sm">
